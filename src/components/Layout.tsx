@@ -26,7 +26,7 @@ export default function Layout() {
     <div className="app">
       <header className="top">
         <NavLink to="/" className="brand" aria-label="Japan Travel, accueil">
-          <span className="hanko" lang="ja" aria-hidden="true">旅</span>
+          <img className="logo" src={`${import.meta.env.BASE_URL}maneki.svg`} alt="" width="34" height="34" />
           <span className="brand-name">Japan Travel</span>
         </NavLink>
         <nav className="tabs-top" aria-label="Navigation principale">{tabs}</nav>

@@ -403,3 +403,7 @@ main { flex: 1; display: flex; flex-direction: column; padding-bottom: calc(var(
 .rel-v { flex: none; font-size: 14px; background: var(--ai); color: var(--ai-ink); border-radius: 5px; padding: 3px 8px; margin-top: 2px; }
 .rel.current .rel-v { background: var(--shu); color: #fff; }
 .rel ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 5px; }
+
+/* Logo : maneki-neko */
+.logo { display: block; width: 34px; height: 34px; border-radius: 8px; box-shadow: 0 0 0 1.5px rgba(255,255,255,.25); }
+.brand:hover .logo { transform: rotate(-6deg); transition: transform .2s; }

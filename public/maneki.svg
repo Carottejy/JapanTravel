@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Maneki-neko : chat porte-bonheur, patte gauche levée, sur fond vermillon -->
+  <rect width="64" height="64" rx="12" fill="#c73e1d"/>
+  <g stroke="#1d2233" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    <!-- corps -->
+    <path d="M17 58 C14 48 16 38 22 34 L42 34 C48 38 50 48 47 58 Z" fill="#fbfaf6"/>
+    <!-- tête et oreilles -->
+    <path d="M14.5 20 L17 7.5 L25 14 C29 12.6 35 12.6 39 14 L47 7.5 L49.5 20 C52 25 50 33 43 36 C37 38.6 27 38.6 21 36 C14 33 12 25 14.5 20 Z" fill="#fbfaf6"/>
+    <path d="M17.6 10.5 L19 16.5 L22.8 14.2 Z M46.4 10.5 L45 16.5 L41.2 14.2 Z" fill="#f2a7a0" stroke="none"/>
+    <!-- yeux fermés, nez, bouche -->
+    <path d="M22.5 24.5 q3 2.6 6 0 M35.5 24.5 q3 2.6 6 0" fill="none"/>
+    <path d="M30.6 28.2 h2.8 l-1.4 1.6 Z" fill="#c73e1d"/>
+    <path d="M32 29.8 q-1.6 2.2 -3.6 1 M32 29.8 q1.6 2.2 3.6 1" fill="none"/>
+    <!-- moustaches -->
+    <path d="M12.5 26.5 l7 1 M12.8 30 l6.8 -0.6 M51.5 26.5 l-7 1 M51.2 30 l-6.8 -0.6" fill="none" stroke-width="1.1"/>
+    <!-- collier rouge et clochette dorée -->
+    <path d="M21 35.4 C27 38.6 37 38.6 43 35.4 L43.5 38.5 C37 41.6 27 41.6 20.5 38.5 Z" fill="#e5603f"/>
+    <circle cx="32" cy="42.6" r="3.3" fill="#e2b33e"/>
+    <path d="M29.6 42.4 h4.8" fill="none" stroke-width="1.1"/>
+    <!-- patte levée qui fait signe -->
+    <path d="M42.5 40 C46 35 49.5 29 50.5 21 C51 15.5 57.8 14.5 58.4 20 C59 26.5 55.5 35 49.5 42 Z" fill="#fbfaf6"/>
+    <path d="M52.2 17.2 l0.6 2.4 M55 16.6 l-0.2 2.5 M57.4 18.4 l-1 2.1" fill="none" stroke-width="1.1"/>
+    <!-- koban (pièce d'or) tenu par l'autre patte -->
+    <ellipse cx="25" cy="50.5" rx="5" ry="6.6" fill="#e2b33e"/>
+    <path d="M25 46.5 v8" fill="none" stroke-width="1.1"/>
+    <path d="M18.2 49.5 c1.5 -2.6 5 -2.6 6.4 -0.2 c-0.8 2.6 -4.8 3 -6.4 0.2 Z" fill="#fbfaf6"/>
+  </g>
+</svg>

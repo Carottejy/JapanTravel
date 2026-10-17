@@ -11,6 +11,15 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.2.1",
+    date: "2026-10-17",
+    titre: "Un maneki-neko comme icône",
+    notes: [
+      "Nouvelle icône : un maneki-neko, le chat porte-bonheur qui fait signe de la patte, sur fond vermillon.",
+      "L'application peut être ajoutée à l'écran d'accueil du téléphone avec cette icône.",
+    ],
+  },
+  {
     version: "1.2.0",
     date: "2026-10-17",
     titre: "Carte épurée et onglet Info",

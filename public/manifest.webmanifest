@@ -1,0 +1,27 @@
+{
+ "name": "Japan Travel",
+ "short_name": "Japan Travel",
+ "lang": "fr",
+ "start_url": ".",
+ "scope": ".",
+ "display": "standalone",
+ "background_color": "#1b2a4a",
+ "theme_color": "#1b2a4a",
+ "icons": [
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "apple-touch-icon.png",
+   "sizes": "180x180",
+   "type": "image/png"
+  },
+  {
+   "src": "maneki.svg",
+   "sizes": "any",
+   "type": "image/svg+xml"
+  }
+ ]
+}

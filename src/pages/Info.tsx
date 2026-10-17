@@ -10,7 +10,7 @@ export default function Info() {
         <h1>Info <span lang="ja" className="jp-sub">情報</span></h1>
         <p className="muted">
           Japan Travel, version <span className="dot-num">{APP_VERSION}</span>. Carnet de {PLACES.length} lieux ; photos Wikimedia Commons,
-          avis Tripadvisor, fond de carte OpenStreetMap. Tarifs relevés en octobre 2026.
+          avis Tripadvisor, contour du Japon Natural Earth. Tarifs relevés en octobre 2026.
         </p>
       </div>
       <section aria-labelledby="rn-h" className="releases">

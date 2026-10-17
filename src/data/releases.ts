@@ -11,6 +11,17 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.3.0",
+    date: "2026-10-17",
+    titre: "Carte détourée du Japon",
+    notes: [
+      "L'accueil affiche une carte détourée du Japon, simple et informative, à la place du fond de carte détaillé.",
+      "Les lieux du voyage sont en surbrillance, numérotés et reliés par le trajet ; leurs noms s'affichent à côté.",
+      "Tous les noms sont en français : îles, mers, grandes villes et mont Fuji.",
+      "Toucher un lieu ouvre un encadré pour voir sa fiche ou l'ajouter au voyage ; boutons « Japon entier » et « Centrer sur mon trajet ».",
+    ],
+  },
+  {
     version: "1.2.1",
     date: "2026-10-17",
     titre: "Un maneki-neko comme icône",

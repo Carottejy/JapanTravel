@@ -15,7 +15,8 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
 ## Technique
 
 - Vite + React + TypeScript, routage par hash (compatible GitHub Pages).
-- Carte : Leaflet + fond OpenStreetMap.
+- Carte : contour détouré du Japon (Natural Earth 1:10 m via `world-atlas`), pré-projeté en SVG par
+  `node scripts/build-japan-map.mjs` → `src/data/japan-map.json` ; repères en français.
 - Données du carnet : `src/data/catalogue.json` ; photos en planches `public/sprites/<id>.jpg` (6 photos Wikimedia Commons par lieu).
 - Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), table `trip_items` protégée par RLS
   (voir `supabase/migrations/`). La clé publique dans `src/config.ts` est faite pour le navigateur ;

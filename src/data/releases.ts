@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.5.0",
+    date: "2026-10-17",
+    titre: "Mes lieux : villes repliables et fiches détaillées",
+    notes: [
+      "Dans Mes lieux, chaque ville se replie ou se déplie d'un toucher sur son nom ; une ville repliée rappelle la liste de ses lieux.",
+      "Boutons « Tout replier » et « Tout déplier » ; les villes repliées restent repliées à la prochaine visite.",
+      "Chaque lieu a un bouton « Voir le détail » qui affiche sa fiche complète, comme dans le catalogue : photos, description, infos pratiques, vidéos et avis.",
+    ],
+  },
+  {
     version: "1.4.0",
     date: "2026-10-17",
     titre: "« Mon voyage » devient « Mes lieux »",

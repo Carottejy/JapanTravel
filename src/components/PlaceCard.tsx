@@ -8,10 +8,11 @@ export const must = (s: string) => /^(Indispensable|Oui)/.test(s);
 /** Sceau (hanko) de la catégorie : lieu célèbre, coin caché, expérience */
 export const SEAL: Record<Category, string> = { classique: "名所", hors: "穴場", activite: "体験" };
 
-export default function PlaceCard({ p }: { p: Place }) {
+/** embedded : affichée dans Mes lieux (sans identifiant d'ancre ni bouton d'ajout, déjà gérés par la page). */
+export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?: boolean }) {
   const gm = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`;
   return (
-    <article className="card" id={"lieu-" + p.id} style={{ ["--zone" as string]: ZONE_COLOR[p.zone] }}>
+    <article className={"card" + (embedded ? " embedded" : "")} id={embedded ? undefined : "lieu-" + p.id} style={{ ["--zone" as string]: ZONE_COLOR[p.zone] }}>
       <Photos place={p} />
       <div className="card-main">
         <div className="card-head">
@@ -65,7 +66,7 @@ export default function PlaceCard({ p }: { p: Place }) {
           </div>
         </details>
         <div className="actions">
-          <AddButton id={p.id} />
+          {!embedded && <AddButton id={p.id} />}
           <a className="btn ghost" href={gm} target="_blank" rel="noopener">Google Maps ↗</a>
         </div>
       </div>

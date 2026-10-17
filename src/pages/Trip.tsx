@@ -1,14 +1,25 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { VILLES, ZONE_COLOR, spritePos, spriteUrl, villeKanji, type Place } from "../data/catalogue";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
-import { must } from "../components/PlaceCard";
+import PlaceCard, { must } from "../components/PlaceCard";
 
 const pad = (n: number) => String(n).padStart(2, "0");
+
+// Villes repliées : mémorisées dans ce navigateur (simple confort, sans conséquence si indisponible).
+const KEY = "jt-villes-repliees";
+const loadFolded = (): number[] => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } };
+const saveFolded = (v: number[]) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* ignoré */ } };
 
 export default function Trip() {
   const { session, loading: authLoading } = useAuth();
   const { ordered, remove, move, loading } = useTrip();
+  const [folded, setFolded] = useState<number[]>(loadFolded);
+  const [open, setOpen] = useState<string[]>([]);
+  const setF = (v: number[]) => { setFolded(v); saveFolded(v); };
+  const toggleCity = (v: number) => setF(folded.includes(v) ? folded.filter((x) => x !== v) : [...folded, v]);
+  const toggleDetail = (id: string) => setOpen(open.includes(id) ? open.filter((x) => x !== id) : [...open, id]);
 
   if (!authLoading && !session)
     return (
@@ -39,6 +50,11 @@ export default function Trip() {
         <div className="row">
           {ordered.length > 0 && <Link to="/" className="btn">Voir le trajet sur la carte</Link>}
           <Link to="/catalogue?nouveaux=1" className={ordered.length ? "btn ghost" : "btn"}>Ajouter des lieux</Link>
+          {groups.length > 1 && (
+            folded.length >= groups.length
+              ? <button className="btn ghost" onClick={() => setF([])}>Tout déplier</button>
+              : <button className="btn ghost" onClick={() => setF(groups.map((g) => g.v))}>Tout replier</button>
+          )}
         </div>
       </div>
 
@@ -51,14 +67,19 @@ export default function Trip() {
 
       {groups.map(({ v, places }) => (
         <section key={v} className="city" aria-labelledby={"tv-" + v}>
-          <div className="city-head">
+          <h2 className="city-h"><button className="city-head city-toggle" aria-label={`${VILLES[v].nom}, ${places.length} arrêt${places.length > 1 ? "s" : ""}`} aria-expanded={!folded.includes(v)} aria-controls={"stops-" + v}
+            onClick={() => toggleCity(v)}>
             <span className="city-jp" lang="ja" aria-hidden="true">{villeKanji(v)}</span>
-            <div>
-              <h2 id={"tv-" + v}>{VILLES[v].nom}</h2>
-              <span className="muted small">{places.length} arrêt{places.length > 1 ? "s" : ""}</span>
-            </div>
-          </div>
-          <ol className="stops">
+            <span className="city-txt">
+              <span className="city-name" id={"tv-" + v}>{VILLES[v].nom}</span>
+              <span className="muted small">
+                {places.length} arrêt{places.length > 1 ? "s" : ""}
+                {folded.includes(v) ? ` : ${places.map((x) => x.p.nom).join(", ")}` : ""}
+              </span>
+            </span>
+            <span className="chev" aria-hidden="true">{folded.includes(v) ? "▾" : "▴"}</span>
+          </button></h2>
+          {!folded.includes(v) && <ol className="stops" id={"stops-" + v}>
             {places.map(({ p, n }, k) => {
               const prev = ordered[n - 2], next = ordered[n];
               return (
@@ -79,12 +100,15 @@ export default function Trip() {
                       <span className="eki-next">{next ? `${next.nom} →` : "Terminus"}</span>
                     </div>
                   </div>
-                  <dl className="stub compact">
+                  {open.includes(p.id) ? <PlaceCard p={p} embedded /> : <dl className="stub compact">
                     <div><dt><span lang="ja">時間</span> Visite</dt><dd>{p.duree}</dd></div>
                     <div><dt><span lang="ja">料金</span> Entrée</dt><dd>{p.prix}</dd></div>
                     {must(p.resa) && <div className="must"><dt><span lang="ja">予約</span> Réservation</dt><dd>{p.resa}</dd></div>}
-                  </dl>
+                  </dl>}
                   <div className="stop-actions">
+                    <button className="btn sm detail-btn" aria-expanded={open.includes(p.id)} onClick={() => toggleDetail(p.id)}>
+                      {open.includes(p.id) ? "Masquer le détail ▴" : "Voir le détail ▾"}
+                    </button>
                     <button className="icon" onClick={() => move(p.id, -1)} disabled={k === 0} aria-label={`Monter ${p.nom}`}>↑</button>
                     <button className="icon" onClick={() => move(p.id, 1)} disabled={k === places.length - 1} aria-label={`Descendre ${p.nom}`}>↓</button>
                     <Link className="btn ghost sm" to={`/?focus=${p.id}`}>Sur la carte</Link>
@@ -93,7 +117,7 @@ export default function Trip() {
                 </li>
               );
             })}
-          </ol>
+          </ol>}
         </section>
       ))}
     </div>

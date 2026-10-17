@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PLACES, PLACE_BY_ID, VILLES, ZONE_COLOR } from "../data/catalogue";
 import { APP_VERSION } from "../data/releases";
@@ -9,16 +9,11 @@ import JapanMap from "../components/JapanMap";
 
 export default function Home() {
   const { session, loading } = useAuth();
-  const { ordered, has, loading: tripLoading } = useTrip();
+  const { ordered } = useTrip();
   const [params, setParams] = useSearchParams();
   const selected = params.get("focus");
-  const [showAll, setShowAll] = useState(false);
-  const [view, setView] = useState<"trajet" | "japon">("trajet");
-
-  const others = useMemo(
-    () => (!session ? PLACES : showAll ? PLACES.filter((p) => !has(p.id)) : []),
-    [session, showAll, has],
-  );
+  // Sans compte, les lieux du carnet apparaissent en points discrets derrière le billet de connexion.
+  const others = useMemo(() => (session ? [] : PLACES), [session]);
   const stops = session ? ordered : [];
   const sel = selected ? PLACE_BY_ID[selected] : null;
   const selIndex = sel ? stops.findIndex((p) => p.id === sel.id) : -1;
@@ -27,20 +22,7 @@ export default function Home() {
   return (
     <div className="home">
       <div className="map-wrap">
-        <JapanMap stops={stops} others={others} selected={selected} onSelect={select} view={view} />
-
-        {session && (
-          <div className="map-tools">
-            {stops.length > 0 && (
-              <button className="chip" onClick={() => setView(view === "trajet" ? "japon" : "trajet")}>
-                {view === "trajet" ? "Japon entier" : "Centrer sur mon trajet"}
-              </button>
-            )}
-            <button className="chip" aria-pressed={showAll} onClick={() => setShowAll(!showAll)}>
-              {showAll ? "Masquer les autres lieux" : "Afficher tous les lieux"}
-            </button>
-          </div>
-        )}
+        <JapanMap stops={stops} others={others} selected={selected} onSelect={select} view="trajet" />
 
         {sel && session && (
           <div className="map-card" style={{ ["--zone" as string]: ZONE_COLOR[sel.zone] }}>
@@ -55,12 +37,6 @@ export default function Home() {
           </div>
         )}
 
-        {session && !sel && !tripLoading && stops.length === 0 && (
-          <div className="map-hint">
-            <p>Ajoutez des lieux depuis le catalogue : ils s'afficheront ici en surbrillance, reliés par un trajet.</p>
-            <Link to="/catalogue" className="btn sm">Ouvrir le catalogue</Link>
-          </div>
-        )}
         <Link to="/info" className="version dot-num" aria-label={`Version ${APP_VERSION}, voir les nouveautés`}>v{APP_VERSION}</Link>
 
         {!loading && !session && (

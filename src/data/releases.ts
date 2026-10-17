@@ -11,6 +11,15 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.3.1",
+    date: "2026-10-17",
+    titre: "Accueil réduit à la carte",
+    notes: [
+      "L'accueil n'affiche plus que la carte et le trajet : plus de message d'invite ni de boutons par-dessus la carte.",
+      "Toucher un lieu du trajet ouvre toujours son encadré.",
+    ],
+  },
+  {
     version: "1.3.0",
     date: "2026-10-17",
     titre: "Carte détourée du Japon",

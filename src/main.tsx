@@ -11,6 +11,7 @@ import Catalogue from "./pages/Catalogue";
 import Trip from "./pages/Trip";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
+import Info from "./pages/Info";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -24,6 +25,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="voyage" element={<Trip />} />
               <Route path="connexion" element={<Login />} />
               <Route path="compte" element={<Account />} />
+              <Route path="info" element={<Info />} />
               <Route path="*" element={<Home />} />
             </Route>
           </Routes>

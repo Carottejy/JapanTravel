@@ -44,3 +44,9 @@ Le workflow `.github/workflows/deploy.yml` publie l'application sur GitHub Pages
 
 Le fichier `src/data/catalogue.json` est généré depuis le carnet « Lieux du Japon ». Chaque lieu a un `id` stable :
 c'est lui qui est enregistré dans `trip_items.place_id`, il ne faut donc pas le renommer.
+
+## Versions et notes de version
+
+Le numéro de version vient de `package.json` et s'affiche sur la carte d'accueil. Les notes de version sont dans
+`src/data/releases.ts` et s'affichent dans l'onglet **Info**. Pour une nouvelle version : augmenter `version`
+dans `package.json` et ajouter une entrée en tête de `RELEASES`.

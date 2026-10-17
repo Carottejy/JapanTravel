@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleMarker, MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
-import { PLACES, VILLES, ZONE_COLOR, villeKanji, type Place } from "../data/catalogue";
+import { PLACES, VILLES, ZONE_COLOR, type Place } from "../data/catalogue";
+import { APP_VERSION } from "../data/releases";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import AddButton from "../components/AddButton";
@@ -27,10 +28,10 @@ function FitTo({ places, focus }: { places: Place[]; focus: string | null }) {
     if (done.current === key) return;
     done.current = key;
     const f = focus && places.find((p) => p.id === focus);
-    if (f) map.flyTo([f.lat, f.lon], 13, { duration: 0.8 });
+    if (f) map.setView([f.lat, f.lon], 13, { animate: false });
     else if (places.length === 1) map.setView([places[0].lat, places[0].lon], 12);
     else if (places.length > 1)
-      map.fitBounds(L.latLngBounds(places.map((p) => [p.lat, p.lon] as [number, number])), { padding: [40, 40] });
+      map.fitBounds(L.latLngBounds(places.map((p) => [p.lat, p.lon] as [number, number])), { padding: [40, 40], animate: false });
   }, [places, focus, map]);
   return null;
 }
@@ -51,11 +52,10 @@ function PopupBody({ p, n }: { p: Place; n?: number }) {
 
 export default function Home() {
   const { session, loading } = useAuth();
-  const { ordered, has } = useTrip();
+  const { ordered, has, loading: tripLoading } = useTrip();
   const [params, setParams] = useSearchParams();
   const focus = params.get("focus");
   const [showAll, setShowAll] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Trajet : une ligne continue dans l'ordre du voyage, colorée par segment de ville.
   const segments = useMemo(() => {
@@ -66,16 +66,6 @@ export default function Home() {
       segs.push({ pts: [[a.lat, a.lon], [b.lat, b.lon]], color: inter ? "#1f2a3a" : ZONE_COLOR[b.zone], inter });
     }
     return segs;
-  }, [ordered]);
-
-  const villes = useMemo(() => {
-    const out: { v: number; places: { p: Place; n: number }[] }[] = [];
-    ordered.forEach((p, i) => {
-      const last = out[out.length - 1];
-      if (last && last.v === p.ville) last.places.push({ p, n: i + 1 });
-      else out.push({ v: p.ville, places: [{ p, n: i + 1 }] });
-    });
-    return out;
   }, [ordered]);
 
   return (
@@ -106,6 +96,21 @@ export default function Home() {
           <FitTo places={ordered} focus={focus} />
         </MapContainer>
 
+        {session && (
+          <div className="map-tools">
+            <button className="chip" aria-pressed={showAll} onClick={() => setShowAll(!showAll)}>
+              {showAll ? "Masquer les autres lieux" : "Afficher tous les lieux"}
+            </button>
+          </div>
+        )}
+        {session && !tripLoading && ordered.length === 0 && (
+          <div className="map-hint">
+            <p>Ajoutez des lieux depuis le catalogue : ils apparaîtront ici, reliés par un trajet.</p>
+            <Link to="/catalogue" className="btn sm">Ouvrir le catalogue</Link>
+          </div>
+        )}
+        <Link to="/info" className="version dot-num" aria-label={`Version ${APP_VERSION}, voir les nouveautés`}>v{APP_VERSION}</Link>
+
         {!loading && !session && (
           <div className="overlay">
             <div className="kippu">
@@ -128,51 +133,6 @@ export default function Home() {
         )}
       </div>
 
-      {session && (
-        <aside className={"side" + (sheetOpen ? " open" : "")} aria-label="Itinéraire">
-          <button className="sheet-handle" onClick={() => setSheetOpen(!sheetOpen)} aria-expanded={sheetOpen}>
-            <span className="grip" aria-hidden="true" />
-            <span className="sr-only">{sheetOpen ? "Réduire l'itinéraire" : "Déplier l'itinéraire"}</span>
-          </button>
-          <div className="side-head">
-            <h2>Mon itinéraire</h2>
-            <p className="muted">
-              {ordered.length
-                ? `${ordered.length} lieu${ordered.length > 1 ? "x" : ""} · ${villes.length} étape${villes.length > 1 ? "s" : ""}`
-                : "Aucun lieu pour l'instant."}
-            </p>
-            <label className="switch">
-              <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
-              Afficher aussi les autres lieux du catalogue
-            </label>
-          </div>
-          {ordered.length === 0 ? (
-            <div className="empty">
-              <p>Ajoutez des lieux depuis le catalogue : ils apparaîtront sur la carte, reliés par un trajet.</p>
-              <Link to="/catalogue" className="btn">Ouvrir le catalogue</Link>
-            </div>
-          ) : (
-            <ol className="itin">
-              {villes.map(({ v, places }) => (
-                <li key={v}>
-                  <div className="itin-city"><span lang="ja">{villeKanji(v)}</span>{VILLES[v].nom}</div>
-                  <ol>
-                    {places.map(({ p, n }) => (
-                      <li key={p.id}>
-                        <button className={"itin-stop" + (p.id === focus ? " on" : "")}
-                          onClick={() => { setParams({ focus: p.id }, { replace: true }); setSheetOpen(false); }}>
-                          <span className="n" style={{ background: ZONE_COLOR[p.zone] }}>{n}</span>
-                          <span>{p.nom}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </li>
-              ))}
-            </ol>
-          )}
-        </aside>
-      )}
     </div>
   );
 }

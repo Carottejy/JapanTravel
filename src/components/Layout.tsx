@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
-import { IconMap, IconScroll, IconTicket, IconUser } from "./Icons";
+import { IconLantern, IconMap, IconScroll, IconTicket, IconUser } from "./Icons";
 
 export default function Layout() {
   const { session, signOut } = useAuth();
@@ -18,6 +18,7 @@ export default function Layout() {
         <span className="ico-wrap"><IconTicket />{session && items.length > 0 && <span className="count">{items.length}</span>}</span>
         <span className="t-fr">Mon voyage</span><span className="t-jp" lang="ja">旅程</span>
       </NavLink>
+      <NavLink to="/info"><IconLantern /><span className="t-fr">Info</span><span className="t-jp" lang="ja">情報</span></NavLink>
     </>
   );
 

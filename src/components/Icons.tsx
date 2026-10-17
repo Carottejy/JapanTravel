@@ -16,3 +16,7 @@ export const IconTicket = () => (
 export const IconUser = () => (
   <svg {...s}><circle cx="12" cy="8.5" r="3.5" /><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5" /></svg>
 );
+/** Info : une lanterne chōchin */
+export const IconLantern = () => (
+  <svg {...s}><path d="M12 2.5v2M9 4.5h6M9 19.5h6M12 19.5v2" /><path d="M8.5 4.5C5.5 6.5 5.5 17.5 8.5 19.5h7c3-2 3-13 0-15z" /><path d="M6.4 9h11.2M6.4 15h11.2" /></svg>
+);

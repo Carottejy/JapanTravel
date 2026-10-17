@@ -11,6 +11,18 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.7.0",
+    date: "2026-10-17",
+    titre: "7 nouveaux lieux au catalogue",
+    notes: [
+      "Tokyo : Omoide Yokochō (ruelle des petits comptoirs de Shinjuku) et l'atelier de carillons Shinohara Furin Honpo.",
+      "Hakone : le ryokan Mount View Hakone et ses bains thermaux à Sengokuhara.",
+      "Osaka : Yoshitake (sukiyaki de wagyu), Yaoya to Gohan Uraya (cantine de légumes) et le Diorama Restaurant (chats et trains miniatures).",
+      "Chūbu : les gorges de Kurobe et leur petit train Torokko.",
+      "Le catalogue compte désormais 133 lieux.",
+    ],
+  },
+  {
     version: "1.6.0",
     date: "2026-10-17",
     titre: "Nouvel onglet Voyage, jour par jour",

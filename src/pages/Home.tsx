@@ -49,7 +49,7 @@ export default function Home() {
             <div className="kippu">
               <div className="kippu-top">
                 <span lang="ja">乗車券</span>
-                <span className="dot-num">126</span>
+                <span className="dot-num">{PLACES.length}</span>
               </div>
               <h1>Votre voyage au Japon, sur une carte</h1>
               <p>

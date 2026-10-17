@@ -1,6 +1,6 @@
 # Japan Travel
 
-Application web pour organiser un voyage au Japon à partir du carnet de **126 lieux** (Tokyo → Hiroshima) :
+Application web pour organiser un voyage au Japon à partir du carnet de **133 lieux** (Tokyo → Hiroshima) :
 durée de visite conseillée, prix d'entrée (yens et euros), délai de réservation, 6 photos, vidéos et avis de voyageurs.
 
 ## Fonctionnalités

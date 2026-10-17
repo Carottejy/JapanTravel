@@ -14,13 +14,13 @@ export default function AddButton({ id, small = false }: { id: string; small?: b
       </button>
     );
   return inTrip ? (
-    <button className={"btn added" + (small ? " sm" : "")} onClick={() => remove(id)} aria-pressed="true" title="Retirer du voyage">
-      <span className="lbl-on">✓ Dans mon voyage</span>
+    <button className={"btn added" + (small ? " sm" : "")} onClick={() => remove(id)} aria-pressed="true" title="Retirer de mes lieux">
+      <span className="lbl-on">✓ Dans mes lieux</span>
       <span className="lbl-off">Retirer</span>
     </button>
   ) : (
     <button className={"btn" + (small ? " sm" : "")} onClick={() => add(id)} aria-pressed="false">
-      + Ajouter au voyage
+      + Ajouter à mes lieux
     </button>
   );
 }

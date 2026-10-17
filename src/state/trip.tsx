@@ -45,7 +45,7 @@ export function TripProvider({ children }: { children: ReactNode }) {
       .then(({ data, error }) => {
         if (cancelled) return;
         setLoading(false);
-        if (error) setError("Impossible de charger votre voyage.");
+        if (error) setError("Impossible de charger vos lieux.");
         else setItems((data ?? []).filter((i) => PLACE_BY_ID[i.place_id]));
       });
     return () => {

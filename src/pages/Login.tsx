@@ -47,7 +47,7 @@ export default function Login() {
         </div>
         <form onSubmit={submit}>
           <h1>{mode === "connexion" ? "Connexion" : mode === "inscription" ? "Nouveau compte" : "Mot de passe oublié"}</h1>
-          <p className="muted small">{mode === "inscription" ? "Votre voyage sera enregistré sur ce compte et visible sur tous vos appareils." : mode === "oubli" ? "Indiquez votre adresse : vous recevrez un lien pour choisir un nouveau mot de passe." : "Retrouvez votre voyage et sa carte."}</p>
+          <p className="muted small">{mode === "inscription" ? "Vos lieux seront enregistrés sur ce compte et visibles sur tous vos appareils." : mode === "oubli" ? "Indiquez votre adresse : vous recevrez un lien pour choisir un nouveau mot de passe." : "Retrouvez vos lieux et leur carte."}</p>
           <label>
             Adresse e-mail
             <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />

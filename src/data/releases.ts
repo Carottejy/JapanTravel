@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.4.0",
+    date: "2026-10-17",
+    titre: "« Mon voyage » devient « Mes lieux »",
+    notes: [
+      "L'onglet Mon voyage s'appelle désormais Mes lieux (行き先).",
+      "Dans le catalogue et sur la carte, les boutons deviennent « Ajouter à mes lieux » et « Dans mes lieux ».",
+      "Les anciens liens vers Mon voyage mènent automatiquement à Mes lieux.",
+    ],
+  },
+  {
     version: "1.3.1",
     date: "2026-10-17",
     titre: "Accueil réduit à la carte",

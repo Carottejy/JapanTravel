@@ -13,8 +13,8 @@ export default function Trip() {
   if (!authLoading && !session)
     return (
       <div className="page narrow">
-        <h1>Mon voyage <span lang="ja" className="jp-sub">旅程</span></h1>
-        <p>Connectez-vous pour composer votre voyage et le retrouver sur tous vos appareils.</p>
+        <h1>Mes lieux <span lang="ja" className="jp-sub">行き先</span></h1>
+        <p>Connectez-vous pour choisir vos lieux et les retrouver sur tous vos appareils.</p>
         <Link to="/connexion" className="btn">Se connecter</Link>
       </div>
     );
@@ -30,7 +30,7 @@ export default function Trip() {
   return (
     <div className="page">
       <div className="page-head">
-        <h1>Mon voyage <span lang="ja" className="jp-sub">旅程</span></h1>
+        <h1>Mes lieux <span lang="ja" className="jp-sub">行き先</span></h1>
         <p className="muted">
           {loading ? "Chargement…" : ordered.length
             ? `${ordered.length} arrêt${ordered.length > 1 ? "s" : ""} dans ${groups.length} ville${groups.length > 1 ? "s" : ""}, d'est en ouest. Dans une ville, changez l'ordre avec les flèches.`

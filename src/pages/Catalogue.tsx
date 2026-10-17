@@ -86,7 +86,7 @@ export default function Catalogue() {
         {session && (
           <label className="switch">
             <input type="checkbox" checked={onlyNew} onChange={(e) => setOnlyNew(e.target.checked)} />
-            Masquer les lieux déjà dans mon voyage
+            Masquer les lieux déjà ajoutés
           </label>
         )}
       </div>

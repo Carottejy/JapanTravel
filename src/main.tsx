@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./styles.css";
 import { AuthProvider } from "./state/auth";
 import { TripProvider } from "./state/trip";
@@ -21,7 +21,8 @@ createRoot(document.getElementById("root")!).render(
             <Route element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="catalogue" element={<Catalogue />} />
-              <Route path="voyage" element={<Trip />} />
+              <Route path="lieux" element={<Trip />} />
+              <Route path="voyage" element={<Navigate to="/lieux" replace />} />
               <Route path="connexion" element={<Login />} />
               <Route path="compte" element={<Account />} />
               <Route path="info" element={<Info />} />

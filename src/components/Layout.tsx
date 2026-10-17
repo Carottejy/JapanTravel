@@ -14,9 +14,9 @@ export default function Layout() {
     <>
       <NavLink to="/" end><IconMap /><span className="t-fr">Carte</span><span className="t-jp" lang="ja">地図</span></NavLink>
       <NavLink to="/catalogue"><IconScroll /><span className="t-fr">Catalogue</span><span className="t-jp" lang="ja">目録</span></NavLink>
-      <NavLink to="/voyage">
+      <NavLink to="/lieux">
         <span className="ico-wrap"><IconTicket />{session && items.length > 0 && <span className="count">{items.length}</span>}</span>
-        <span className="t-fr">Mon voyage</span><span className="t-jp" lang="ja">旅程</span>
+        <span className="t-fr">Mes lieux</span><span className="t-jp" lang="ja">行き先</span>
       </NavLink>
       <NavLink to="/info"><IconLantern /><span className="t-fr">Info</span><span className="t-jp" lang="ja">情報</span></NavLink>
     </>

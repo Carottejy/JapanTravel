@@ -134,7 +134,7 @@ export default function JapanMap({ stops, others, selected, onSelect, view }: Ja
   return (
     <div className="jmap" ref={box}>
       <svg viewBox={vb.join(" ")} preserveAspectRatio="xMidYMid meet" role="img"
-        aria-label={stops.length ? `Carte du Japon avec les ${stops.length} lieux de votre voyage` : "Carte du Japon"}
+        aria-label={stops.length ? `Carte du Japon avec les ${stops.length} lieux choisis` : "Carte du Japon"}
         onClick={(e) => { if (e.target === e.currentTarget) onSelect(null); }}>
         <defs>
           <pattern id="seigaiha" width={40 * u} height={20 * u} patternUnits="userSpaceOnUse">

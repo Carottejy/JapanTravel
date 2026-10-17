@@ -3,31 +3,36 @@ import { Link, useSearchParams } from "react-router-dom";
 import { PLACES, PLACE_BY_ID, VILLES, ZONE_COLOR } from "../data/catalogue";
 import { APP_VERSION } from "../data/releases";
 import { useAuth } from "../state/auth";
-import { useTrip } from "../state/trip";
+import { dayLabel, usePlan } from "../state/plan";
 import AddButton from "../components/AddButton";
 import JapanMap from "../components/JapanMap";
 
 export default function Home() {
   const { session, loading } = useAuth();
-  const { ordered } = useTrip();
+  const { route, days } = usePlan();
   const [params, setParams] = useSearchParams();
   const selected = params.get("focus");
   // Sans compte, les lieux du carnet apparaissent en points discrets derrière le billet de connexion.
   const others = useMemo(() => (session ? [] : PLACES), [session]);
-  const stops = session ? ordered : [];
+  // Trajet = les lieux placés dans l'onglet Voyage, jour après jour.
+  const stops = session ? route.map((s) => s.p) : [];
+  const groups = route.map((s) => s.day);
   const sel = selected ? PLACE_BY_ID[selected] : null;
-  const selIndex = sel ? stops.findIndex((p) => p.id === sel.id) : -1;
+  const selStops = sel ? route.filter((s) => s.p.id === sel.id) : [];
   const select = (id: string | null) => setParams(id ? { focus: id } : {}, { replace: true });
 
   return (
     <div className="home">
       <div className="map-wrap">
-        <JapanMap stops={stops} others={others} selected={selected} onSelect={select} view="trajet" />
+        <JapanMap stops={stops} others={others} selected={selected} onSelect={select} view="trajet" groups={groups} />
 
         {sel && session && (
           <div className="map-card" style={{ ["--zone" as string]: ZONE_COLOR[sel.zone] }}>
             <button className="map-card-close" onClick={() => select(null)} aria-label="Fermer">✕</button>
-            <p className="muted small">{selIndex >= 0 ? `Arrêt ${selIndex + 1}, ` : ""}{VILLES[sel.ville].nom}</p>
+            <p className="muted small">
+              {selStops.map((s) => `Jour ${days.indexOf(s.day) + 1} (${dayLabel(s.day, { weekday: "short", day: "numeric", month: "short" })}), étape ${s.n}`).join(" ; ")}
+              {selStops.length ? " · " : ""}{VILLES[sel.ville].nom}
+            </p>
             <h2>{sel.nom}</h2>
             <p className="small">⏱ {sel.duree}</p>
             <div className="row">

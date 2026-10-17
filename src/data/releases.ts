@@ -11,6 +11,17 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.6.0",
+    date: "2026-10-17",
+    titre: "Nouvel onglet Voyage, jour par jour",
+    notes: [
+      "Nouvel onglet Voyage (旅程) : choisissez la date de départ et la date de retour, puis placez chaque jour des lieux de votre liste « Mes lieux », dans l'ordre de visite.",
+      "La carte d'accueil trace désormais le trajet du voyage, jour après jour (pointillés d'un jour à l'autre) ; un lieu touché indique son jour et son étape.",
+      "Mes lieux devient une simple liste par ville, sans ordre de visite ; chaque lieu indique les jours où il est prévu.",
+      "Retirer un lieu de Mes lieux le retire aussi des journées du voyage ; raccourcir les dates retire, après confirmation, les lieux placés hors des nouvelles dates.",
+    ],
+  },
+  {
     version: "1.5.0",
     date: "2026-10-17",
     titre: "Mes lieux : villes repliables et fiches détaillées",

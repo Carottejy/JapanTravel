@@ -20,3 +20,11 @@ export const IconUser = () => (
 export const IconLantern = () => (
   <svg {...s}><path d="M12 2.5v2M9 4.5h6M9 19.5h6M12 19.5v2" /><path d="M8.5 4.5C5.5 6.5 5.5 17.5 8.5 19.5h7c3-2 3-13 0-15z" /><path d="M6.4 9h11.2M6.4 15h11.2" /></svg>
 );
+/** Mes lieux : une épingle de carte */
+export const IconPin = () => (
+  <svg {...s}><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z" /><circle cx="12" cy="9.8" r="2.4" /></svg>
+);
+/** Voyage : le nez d'un shinkansen */
+export const IconTrain = () => (
+  <svg {...s}><path d="M4 16.5c0-6 4-10.5 10-10.5h1.5c2.5 0 4.5 2 4.5 4.5v6a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 16.5z" /><path d="M8.5 11h11.5M4.5 20.5h16" /><circle cx="16.5" cy="14.5" r=".6" fill="currentColor" /></svg>
+);

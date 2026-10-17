@@ -4,6 +4,8 @@ import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./styles.css";
 import { AuthProvider } from "./state/auth";
 import { TripProvider } from "./state/trip";
+import { PlanProvider } from "./state/plan";
+import Voyage from "./pages/Voyage";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Catalogue from "./pages/Catalogue";
@@ -16,13 +18,14 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
       <TripProvider>
+        <PlanProvider>
         <HashRouter>
           <Routes>
             <Route element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="catalogue" element={<Catalogue />} />
               <Route path="lieux" element={<Trip />} />
-              <Route path="voyage" element={<Navigate to="/lieux" replace />} />
+              <Route path="voyage" element={<Voyage />} />
               <Route path="connexion" element={<Login />} />
               <Route path="compte" element={<Account />} />
               <Route path="info" element={<Info />} />
@@ -30,6 +33,7 @@ createRoot(document.getElementById("root")!).render(
             </Route>
           </Routes>
         </HashRouter>
+        </PlanProvider>
       </TripProvider>
     </AuthProvider>
   </StrictMode>,

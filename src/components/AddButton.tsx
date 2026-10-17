@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
+import { usePlan } from "../state/plan";
 
 export default function AddButton({ id, small = false }: { id: string; small?: boolean }) {
   const { session } = useAuth();
   const { has, add, remove } = useTrip();
+  const { removePlaceEverywhere } = usePlan();
   const nav = useNavigate();
   const inTrip = has(id);
   if (!session)
@@ -14,7 +16,7 @@ export default function AddButton({ id, small = false }: { id: string; small?: b
       </button>
     );
   return inTrip ? (
-    <button className={"btn added" + (small ? " sm" : "")} onClick={() => remove(id)} aria-pressed="true" title="Retirer de mes lieux">
+    <button className={"btn added" + (small ? " sm" : "")} onClick={() => { remove(id); removePlaceEverywhere(id); }} aria-pressed="true" title="Retirer de mes lieux">
       <span className="lbl-on">✓ Dans mes lieux</span>
       <span className="lbl-off">Retirer</span>
     </button>

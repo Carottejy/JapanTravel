@@ -60,9 +60,11 @@ export interface JapanMapProps {
   selected: string | null;
   onSelect: (id: string | null) => void;
   view: "trajet" | "japon";
+  /** Clé de regroupement de chaque arrêt (ex. le jour) : trait plein dans un groupe, pointillés entre deux groupes. */
+  groups?: (string | number)[];
 }
 
-export default function JapanMap({ stops, others, selected, onSelect, view }: JapanMapProps) {
+export default function JapanMap({ stops, others, selected, onSelect, view, groups }: JapanMapProps) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 800, h: 600 });
   const [vb, setVb] = useState<VB>(FULL);
@@ -186,7 +188,7 @@ export default function JapanMap({ stops, others, selected, onSelect, view }: Ja
         {/* Trajet */}
         {pts.slice(1).map(([x, y], i) => {
           const [px, py] = pts[i];
-          const inter = stops[i].ville !== stops[i + 1].ville;
+          const inter = groups ? groups[i] !== groups[i + 1] : stops[i].ville !== stops[i + 1].ville;
           return <line key={i} x1={px} y1={py} x2={x} y2={y} className={inter ? "leg inter" : "leg"}
             stroke={inter ? undefined : ZONE_COLOR[stops[i + 1].zone]}
             strokeWidth={(inter ? 2.2 : 3.4) * u} strokeDasharray={inter ? `${6 * u} ${6 * u}` : undefined} />;
@@ -197,7 +199,7 @@ export default function JapanMap({ stops, others, selected, onSelect, view }: Ja
           const [x, y] = pts[i];
           const on = p.id === selected, s = (on ? 13 : 11) * u;
           return (
-            <g key={p.id} className={"stop-pin" + (on ? " on" : "")} onClick={() => onSelect(p.id)} role="button"
+            <g key={p.id + "-" + i} className={"stop-pin" + (on ? " on" : "")} onClick={() => onSelect(p.id)} role="button"
               aria-label={`Arrêt ${i + 1} : ${p.nom}`}>
               <circle cx={x} cy={y} r={s * 1.9} className="halo" fill={ZONE_COLOR[p.zone]} />
               <rect x={x - s} y={y - s} width={2 * s} height={2 * s} rx={3 * u} fill={ZONE_COLOR[p.zone]} strokeWidth={2 * u} />
@@ -206,8 +208,8 @@ export default function JapanMap({ stops, others, selected, onSelect, view }: Ja
           );
         })}
         <g className="pin-labels" pointerEvents="none">
-          {labels.out.map((l) => (
-            <text key={l.id} x={l.x} y={l.y} textAnchor={l.anchor} fontSize={12.5 * u} strokeWidth={3.4 * u}
+          {labels.out.map((l, li) => (
+            <text key={l.id + "-" + li} x={l.x} y={l.y} textAnchor={l.anchor} fontSize={12.5 * u} strokeWidth={3.4 * u}
               className={l.id === selected ? "on" : ""}>{l.text}</text>
           ))}
         </g>

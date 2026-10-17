@@ -1,0 +1,58 @@
+import raw from "./catalogue.json";
+
+export type Category = "classique" | "hors" | "activite";
+export type Zone = "tokyo" | "fuji" | "chubu" | "kansai" | "osaka" | "kii" | "sanyo" | "hiro";
+
+export interface Place {
+  id: string;
+  nom: string;
+  cat: Category;
+  zone: Zone;
+  lieu: string;
+  lat: number;
+  lon: number;
+  desc: string;
+  note?: string | null;
+  ville: number;
+  duree: string;
+  prix: string;
+  resa: string;
+  q: string;
+  photos: { name: string; page: string }[];
+  videos: { titre: string; url: string }[];
+  avis: { en: string; fr: string; url: string }[];
+  ta?: string | null;
+  taNom?: string | null;
+}
+export interface Ville {
+  nom: string;
+  sous: string;
+}
+
+export const VILLES: Ville[] = raw.villes;
+export const PLACES: Place[] = raw.places as Place[];
+export const PLACE_BY_ID: Record<string, Place> = Object.fromEntries(PLACES.map((p) => [p.id, p]));
+
+export const CAT_LABEL: Record<Category, string> = {
+  classique: "Incontournable",
+  hors: "Moins touristique",
+  activite: "Activité atypique",
+};
+
+export const ZONE_COLOR: Record<Zone, string> = {
+  tokyo: "#b23a48",
+  fuji: "#b9771a",
+  chubu: "#8a5a9e",
+  kansai: "#2f6f73",
+  osaka: "#4b4f8a",
+  kii: "#3b7d4f",
+  sanyo: "#b0602a",
+  hiro: "#5e7f1f",
+};
+
+export const spriteUrl = (id: string) => `${import.meta.env.BASE_URL}sprites/${id}.jpg`;
+/** Position CSS d'une vignette dans la planche 3 × 2 */
+export const spritePos = (k: number) => `${(k % 3) * 50}% ${Math.floor(k / 3) * 100}%`;
+
+export const norm = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");

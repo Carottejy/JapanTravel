@@ -1,32 +1,47 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
+import { IconMap, IconScroll, IconTicket, IconUser } from "./Icons";
 
 export default function Layout() {
   const { session, signOut } = useAuth();
   const { items, error, clearError } = useTrip();
   const nav = useNavigate();
+  const [menu, setMenu] = useState(false);
+
+  const tabs = (
+    <>
+      <NavLink to="/" end><IconMap /><span className="t-fr">Carte</span><span className="t-jp" lang="ja">地図</span></NavLink>
+      <NavLink to="/catalogue"><IconScroll /><span className="t-fr">Catalogue</span><span className="t-jp" lang="ja">目録</span></NavLink>
+      <NavLink to="/voyage">
+        <span className="ico-wrap"><IconTicket />{session && items.length > 0 && <span className="count">{items.length}</span>}</span>
+        <span className="t-fr">Mon voyage</span><span className="t-jp" lang="ja">旅程</span>
+      </NavLink>
+    </>
+  );
+
   return (
     <div className="app">
       <header className="top">
         <NavLink to="/" className="brand" aria-label="Japan Travel, accueil">
-          <span className="hinomaru" aria-hidden="true" />
-          Japan Travel
+          <span className="hanko" lang="ja" aria-hidden="true">旅</span>
+          <span className="brand-name">Japan Travel</span>
         </NavLink>
-        <nav className="tabs" aria-label="Navigation principale">
-          <NavLink to="/" end>Carte</NavLink>
-          <NavLink to="/catalogue">Catalogue</NavLink>
-          <NavLink to="/voyage">
-            Mon voyage{session && items.length > 0 && <span className="count">{items.length}</span>}
-          </NavLink>
-        </nav>
+        <nav className="tabs-top" aria-label="Navigation principale">{tabs}</nav>
         <div className="account">
           {session ? (
             <>
-              <span className="who" title={session.user.email}>{session.user.email}</span>
-              <button className="btn ghost sm" onClick={async () => { await signOut(); nav("/"); }}>
-                Se déconnecter
+              <button className="avatar" aria-expanded={menu} aria-label="Mon compte" onClick={() => setMenu(!menu)}>
+                <IconUser />
               </button>
+              {menu && (
+                <div className="menu" role="menu" onMouseLeave={() => setMenu(false)}>
+                  <p className="menu-mail">{session.user.email}</p>
+                  <NavLink to="/compte" role="menuitem" onClick={() => setMenu(false)}>Changer de mot de passe</NavLink>
+                  <button role="menuitem" onClick={async () => { setMenu(false); await signOut(); nav("/"); }}>Se déconnecter</button>
+                </div>
+              )}
             </>
           ) : (
             <NavLink to="/connexion" className="btn sm">Se connecter</NavLink>
@@ -42,6 +57,7 @@ export default function Layout() {
       <main>
         <Outlet />
       </main>
+      <nav className="tabs-bottom" aria-label="Navigation principale">{tabs}</nav>
     </div>
   );
 }

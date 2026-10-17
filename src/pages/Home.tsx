@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleMarker, MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
-import { PLACES, VILLES, ZONE_COLOR, type Place } from "../data/catalogue";
+import { PLACES, VILLES, ZONE_COLOR, villeKanji, type Place } from "../data/catalogue";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import AddButton from "../components/AddButton";
@@ -55,6 +55,7 @@ export default function Home() {
   const [params, setParams] = useSearchParams();
   const focus = params.get("focus");
   const [showAll, setShowAll] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Trajet : une ligne continue dans l'ordre du voyage, colorée par segment de ville.
   const segments = useMemo(() => {
@@ -107,24 +108,32 @@ export default function Home() {
 
         {!loading && !session && (
           <div className="overlay">
-            <div className="overlay-card">
+            <div className="kippu">
+              <div className="kippu-top">
+                <span lang="ja">乗車券</span>
+                <span className="dot-num">126</span>
+              </div>
               <h1>Votre voyage au Japon, sur une carte</h1>
               <p>
-                Parcourez les {PLACES.length} lieux du carnet, ajoutez ceux qui vous tentent à votre voyage et
-                retrouvez-les ici, reliés ville par ville.
+                Choisissez vos lieux parmi les {PLACES.length} du carnet : ils s'affichent ici, reliés d'une ville à l'autre comme
+                les gares d'une ligne.
               </p>
-              <div className="row">
+              <div className="kippu-actions">
                 <Link to="/connexion" className="btn">Se connecter</Link>
                 <Link to="/connexion?mode=inscription" className="btn ghost">Créer un compte</Link>
               </div>
-              <Link to="/catalogue" className="small">Parcourir le catalogue sans compte →</Link>
+              <Link to="/catalogue" className="small kippu-link">Parcourir le catalogue sans compte</Link>
             </div>
           </div>
         )}
       </div>
 
       {session && (
-        <aside className="side" aria-label="Itinéraire">
+        <aside className={"side" + (sheetOpen ? " open" : "")} aria-label="Itinéraire">
+          <button className="sheet-handle" onClick={() => setSheetOpen(!sheetOpen)} aria-expanded={sheetOpen}>
+            <span className="grip" aria-hidden="true" />
+            <span className="sr-only">{sheetOpen ? "Réduire l'itinéraire" : "Déplier l'itinéraire"}</span>
+          </button>
           <div className="side-head">
             <h2>Mon itinéraire</h2>
             <p className="muted">
@@ -146,12 +155,12 @@ export default function Home() {
             <ol className="itin">
               {villes.map(({ v, places }) => (
                 <li key={v}>
-                  <div className="itin-city">{VILLES[v].nom}</div>
+                  <div className="itin-city"><span lang="ja">{villeKanji(v)}</span>{VILLES[v].nom}</div>
                   <ol>
                     {places.map(({ p, n }) => (
                       <li key={p.id}>
                         <button className={"itin-stop" + (p.id === focus ? " on" : "")}
-                          onClick={() => setParams({ focus: p.id }, { replace: true })}>
+                          onClick={() => { setParams({ focus: p.id }, { replace: true }); setSheetOpen(false); }}>
                           <span className="n" style={{ background: ZONE_COLOR[p.zone] }}>{n}</span>
                           <span>{p.nom}</span>
                         </button>

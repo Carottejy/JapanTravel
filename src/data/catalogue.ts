@@ -30,6 +30,11 @@ export interface Ville {
 }
 
 export const VILLES: Ville[] = raw.villes;
+/** Nom japonais de chaque groupe de villes, dans l'ordre du carnet (affiché sur les panneaux de gare). */
+const KANJI = ["東京", "東京近郊", "富士山", "箱根・伊豆", "名古屋・中部", "琵琶湖", "伊賀・伊勢", "京都", "宇治", "丹後", "奈良", "奈良近郊",
+  "大阪", "大阪近郊", "神戸", "紀伊半島", "姫路", "岡山・倉敷", "瀬戸内海", "広島", "広島近郊"];
+export const villeKanji = (i: number) => KANJI[i] ?? "";
+
 export const PLACES: Place[] = raw.places as Place[];
 export const PLACE_BY_ID: Record<string, Place> = Object.fromEntries(PLACES.map((p) => [p.id, p]));
 

@@ -39,13 +39,15 @@ export default function Login() {
 
   return (
     <div className="page narrow">
-      <div className="auth">
+      <div className="auth kippu-form">
+        <div className="kippu-top"><span lang="ja">会員証</span><span className="hanko sm" lang="ja" aria-hidden="true">旅</span></div>
         <div className="seg" role="tablist" aria-label="Connexion ou inscription">
           <button role="tab" aria-selected={mode === "connexion"} onClick={() => go("connexion")}>Se connecter</button>
           <button role="tab" aria-selected={mode === "inscription"} onClick={() => go("inscription")}>Créer un compte</button>
         </div>
         <form onSubmit={submit}>
           <h1>{mode === "connexion" ? "Connexion" : mode === "inscription" ? "Nouveau compte" : "Mot de passe oublié"}</h1>
+          <p className="muted small">{mode === "inscription" ? "Votre voyage sera enregistré sur ce compte et visible sur tous vos appareils." : mode === "oubli" ? "Indiquez votre adresse : vous recevrez un lien pour choisir un nouveau mot de passe." : "Retrouvez votre voyage et sa carte."}</p>
           <label>
             Adresse e-mail
             <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />

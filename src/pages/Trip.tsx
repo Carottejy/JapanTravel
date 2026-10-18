@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PLACES, VILLES, ZONE_COLOR, spritePos, spriteUrl, villeKanji, type Place } from "../data/catalogue";
+import { VILLES, ZONE_COLOR, villeKanji, type Place } from "../data/catalogue";
+import { useCatalog } from "../state/catalog";
+import Thumb from "../components/Thumb";
+import NoteBox from "../components/NoteBox";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import { dayLabel, usePlan } from "../state/plan";
@@ -10,13 +13,13 @@ import PlaceCard, { must } from "../components/PlaceCard";
 const KEY = "jt-villes-repliees";
 const loadFolded = (): number[] => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } };
 const saveFolded = (v: number[]) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* ignoré */ } };
-const RANK = Object.fromEntries(PLACES.map((p, i) => [p.id, i]));
 
 /** Mes lieux : la liste des lieux retenus, rangés par ville (sans ordre de visite : il se règle dans Voyage). */
 export default function Trip() {
   const { session, loading: authLoading } = useAuth();
   const { items, remove, loading } = useTrip();
   const { days, daysOf, removePlaceEverywhere } = usePlan();
+  const { byId, rank: RANK } = useCatalog();
   const [folded, setFolded] = useState<number[]>(loadFolded);
   const [open, setOpen] = useState<string[]>([]);
   const setF = (v: number[]) => { setFolded(v); saveFolded(v); };
@@ -32,7 +35,7 @@ export default function Trip() {
       </div>
     );
 
-  const places = items.map((i) => PLACES[RANK[i.place_id]]).filter(Boolean).sort((a, b) => a.ville - b.ville || RANK[a.id] - RANK[b.id]);
+  const places = items.map((i) => byId[i.place_id]).filter(Boolean).sort((a, b) => a.ville - b.ville || RANK[a.id] - RANK[b.id]);
   const groups: { v: number; places: Place[] }[] = [];
   places.forEach((p) => {
     const last = groups[groups.length - 1];
@@ -91,7 +94,7 @@ export default function Trip() {
                   {/* Panneau de gare façon JR : nom du lieu, bande de couleur de la ligne */}
                   <div className="eki">
                     <div className="eki-body">
-                      <div className="thumb" style={{ backgroundImage: `url("${spriteUrl(p.id)}")`, backgroundPosition: spritePos(0) }} />
+                      <Thumb p={p} />
                       <div className="eki-name">
                         <span className="eki-city" lang="ja">{villeKanji(p.ville)}</span>
                         <h3>{p.nom}</h3>
@@ -109,6 +112,7 @@ export default function Trip() {
                       {must(p.resa) && <div className="must"><dt><span lang="ja">予約</span> Réservation</dt><dd>{p.resa}</dd></div>}
                     </dl>
                   )}
+                  <NoteBox placeId={p.id} />
                   <div className="stop-actions">
                     <button className="btn sm detail-btn" aria-expanded={open.includes(p.id)} onClick={() => toggleDetail(p.id)}>
                       {open.includes(p.id) ? "Masquer le détail ▴" : "Voir le détail ▾"}

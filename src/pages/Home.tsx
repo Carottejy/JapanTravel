@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { PLACES, PLACE_BY_ID, VILLES, ZONE_COLOR } from "../data/catalogue";
+import { VILLES, ZONE_COLOR } from "../data/catalogue";
+import { useCatalog } from "../state/catalog";
 import { APP_VERSION } from "../data/releases";
 import { useAuth } from "../state/auth";
 import { dayLabel, usePlan } from "../state/plan";
@@ -10,14 +11,15 @@ import JapanMap from "../components/JapanMap";
 export default function Home() {
   const { session, loading } = useAuth();
   const { route, days } = usePlan();
+  const { places: PLACES, byId } = useCatalog();
   const [params, setParams] = useSearchParams();
   const selected = params.get("focus");
   // Sans compte, les lieux du carnet apparaissent en points discrets derrière le billet de connexion.
-  const others = useMemo(() => (session ? [] : PLACES), [session]);
+  const others = useMemo(() => (session ? [] : PLACES), [session, PLACES]);
   // Trajet = les lieux placés dans l'onglet Voyage, jour après jour.
   const stops = session ? route.map((s) => s.p) : [];
   const groups = route.map((s) => s.day);
-  const sel = selected ? PLACE_BY_ID[selected] : null;
+  const sel = selected ? byId[selected] ?? null : null;
   const selStops = sel ? route.filter((s) => s.p.id === sel.id) : [];
   const select = (id: string | null) => setParams(id ? { focus: id } : {}, { replace: true });
 

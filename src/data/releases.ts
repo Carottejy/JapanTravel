@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.8.0",
+    date: "2026-10-18",
+    titre: "Notes perso, fiches maison et glisser-déposer",
+    notes: [
+      "Mes lieux : chaque lieu peut recevoir vos notes personnelles (メモ), enregistrées automatiquement et rappelées dans l'onglet Voyage.",
+      "Catalogue : bouton « + Créer une fiche » pour ajouter un lieu à vous (nom, ville, position via un lien Google Maps, description, durée, prix…). Vos fiches portent le sceau 手作 et se modifient ou se suppriment à tout moment.",
+      "Voyage : faites glisser un lieu par sa poignée ⠿ d'un jour à l'autre, au doigt ou à la souris ; un menu « J… » permet aussi de le déplacer.",
+    ],
+  },
+  {
     version: "1.7.3",
     date: "2026-10-18",
     titre: "Bouton d'installation",

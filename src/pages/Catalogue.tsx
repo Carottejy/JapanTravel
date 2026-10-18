@@ -1,23 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { PLACES, VILLES, norm, villeKanji, type Category } from "../data/catalogue";
+import { Link } from "react-router-dom";
+import { VILLES, norm, villeKanji, type Category } from "../data/catalogue";
+import { useCatalog } from "../state/catalog";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import PlaceCard from "../components/PlaceCard";
 
-const CATS: { v: "all" | Category; l: string }[] = [
+const CATS: { v: "all" | "perso" | Category; l: string }[] = [
   { v: "all", l: "Tous" },
   { v: "classique", l: "Incontournables" },
   { v: "hors", l: "Moins touristiques" },
   { v: "activite", l: "Activités atypiques" },
+  { v: "perso", l: "Mes fiches" },
 ];
-const HAY = Object.fromEntries(PLACES.map((p) => [p.id, norm([p.nom, p.lieu, p.desc, p.q].join(" "))]));
 
 export default function Catalogue() {
   const { session } = useAuth();
   const { has, items } = useTrip();
   const [params, setParams] = useSearchParams();
-  const [cat, setCat] = useState<"all" | Category>("all");
+  const [cat, setCat] = useState<"all" | "perso" | Category>("all");
+  const { places: PLACES, hay: HAY } = useCatalog();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const rail = useRef<HTMLOListElement>(null);
@@ -26,8 +29,8 @@ export default function Catalogue() {
 
   const list = useMemo(() => {
     const nq = norm(q.trim());
-    return PLACES.filter((p) => (cat === "all" || p.cat === cat) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)));
-  }, [cat, q, onlyNew, session, has]);
+    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)));
+  }, [cat, q, onlyNew, session, has, PLACES, HAY]);
 
   const groups = useMemo(() => {
     const m = new Map<number, typeof list>();
@@ -38,7 +41,7 @@ export default function Catalogue() {
     const c: Record<number, number> = {};
     items.forEach((i) => { const p = PLACES.find((x) => x.id === i.place_id); if (p) c[p.ville] = (c[p.ville] ?? 0) + 1; });
     return c;
-  }, [items]);
+  }, [items, PLACES]);
 
   // Gare active de la ligne = ville en cours de lecture.
   useEffect(() => {
@@ -76,12 +79,13 @@ export default function Catalogue() {
       <div className="page-head">
         <h1>Catalogue <span lang="ja" className="jp-sub">目録</span></h1>
         <p className="muted">{PLACES.length} lieux, de Tokyo à Hiroshima, rangés ville par ville comme les gares d'une ligne.</p>
+        {session && <div className="row"><Link to="/fiche/nouvelle" className="btn ghost">+ Créer une fiche</Link></div>}
       </div>
 
       <div className="filters">
         <input type="search" placeholder="Rechercher un lieu, un quartier…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Rechercher un lieu" />
         <div className="chips" role="group" aria-label="Type de lieu">
-          {CATS.map((c) => <button key={c.v} className="chip" aria-pressed={cat === c.v} onClick={() => setCat(c.v)}>{c.l}</button>)}
+          {CATS.filter((c) => c.v !== "perso" || PLACES.some((p) => p.custom)).map((c) => <button key={c.v} className="chip" aria-pressed={cat === c.v} onClick={() => setCat(c.v)}>{c.l}</button>)}
         </div>
         {session && (
           <label className="switch">

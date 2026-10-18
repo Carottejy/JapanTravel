@@ -5,6 +5,7 @@ import "./styles.css";
 import { AuthProvider } from "./state/auth";
 import { TripProvider } from "./state/trip";
 import { PlanProvider } from "./state/plan";
+import { CatalogProvider } from "./state/catalog";
 import Voyage from "./pages/Voyage";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -13,11 +14,13 @@ import Trip from "./pages/Trip";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import Info from "./pages/Info";
+import PlaceForm from "./pages/PlaceForm";
 import "./components/InstallBox";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
+      <CatalogProvider>
       <TripProvider>
         <PlanProvider>
         <HashRouter>
@@ -30,12 +33,15 @@ createRoot(document.getElementById("root")!).render(
               <Route path="connexion" element={<Login />} />
               <Route path="compte" element={<Account />} />
               <Route path="info" element={<Info />} />
+              <Route path="fiche/nouvelle" element={<PlaceForm />} />
+              <Route path="fiche/:id" element={<PlaceForm />} />
               <Route path="*" element={<Home />} />
             </Route>
           </Routes>
         </HashRouter>
         </PlanProvider>
       </TripProvider>
+      </CatalogProvider>
     </AuthProvider>
   </StrictMode>,
 );

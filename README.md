@@ -10,8 +10,10 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
   par un trajet ville par ville (pointillés entre deux villes). Option pour afficher aussi le reste du catalogue.
 - **Catalogue** : tous les lieux regroupés par ville, d'est en ouest ; filtres par type, par ville, recherche,
   et « masquer les lieux déjà ajoutés ». Bouton « Ajouter à mes lieux » sur chaque fiche.
-- **Mes lieux** : les lieux choisis, ville par ville, avec le détail de chaque fiche et les réservations à anticiper.
+- **Mes lieux** : les lieux choisis, ville par ville, avec le détail de chaque fiche, des notes perso et les réservations à anticiper.
+- **Fiches perso** : « + Créer une fiche » dans le catalogue (position via un lien Google Maps ou des coordonnées).
 - **Voyage** : dates de départ et de retour, puis les lieux de « Mes lieux » placés jour par jour, dans l'ordre de visite.
+  Les lieux se déplacent d'un jour à l'autre par glisser-déposer (poignée ⠿) ou avec le menu « J… ».
   Ce planning forme le trajet tracé sur la carte d'accueil.
 
 ## Technique
@@ -20,7 +22,8 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
 - Carte : contour détouré du Japon (Natural Earth 1:10 m via `world-atlas`), pré-projeté en SVG par
   `node scripts/build-japan-map.mjs` → `src/data/japan-map.json` ; repères en français.
 - Données du carnet : `src/data/catalogue.json` ; photos en planches `public/sprites/<id>.jpg` (6 photos Wikimedia Commons par lieu).
-- Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), tables `trip_items` (mes lieux), `voyages` (dates) et `voyage_etapes` (lieux par jour), protégées par RLS
+- Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), tables `trip_items` (mes lieux), `voyages` (dates) `voyage_etapes` (lieux par jour) et `custom_places` (fiches créées à la main),
+  protégées par RLS ; les notes perso sont dans `trip_items.note`
   (voir `supabase/migrations/`). La clé publique dans `src/config.ts` est faite pour le navigateur ;
   elle peut être remplacée par les variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_KEY`.
 

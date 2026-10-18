@@ -23,6 +23,9 @@ export interface Place {
   avis: { en: string; fr: string; url: string }[];
   ta?: string | null;
   taNom?: string | null;
+  /** fiche créée à la main par le compte */
+  custom?: boolean;
+  lien?: string | null;
 }
 export interface Ville {
   nom: string;

@@ -22,6 +22,8 @@ export default function Photos({ place }: { place: Place }) {
     if (el) setCur(Math.round(el.scrollLeft / el.clientWidth));
   };
 
+  if (!n)
+    return <div className="photos none" aria-hidden="true"><span lang="ja">手作り</span><span className="small">Fiche perso, sans photo</span></div>;
   return (
     <div className="photos">
       <div className="ph" ref={strip} onScroll={onScroll}>

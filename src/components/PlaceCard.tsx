@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { CAT_LABEL, ZONE_COLOR, type Category, type Place } from "../data/catalogue";
 import Photos from "./Photos";
 import AddButton from "./AddButton";
@@ -20,9 +21,9 @@ export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?
             <h3>{p.nom}</h3>
             <p className="meta">{p.lieu}</p>
           </div>
-          <span className={"seal " + p.cat} title={CAT_LABEL[p.cat]}>
-            <span lang="ja" aria-hidden="true">{SEAL[p.cat]}</span>
-            <span className="seal-fr">{CAT_LABEL[p.cat]}</span>
+          <span className={"seal " + (p.custom ? "perso" : p.cat)} title={p.custom ? "Fiche perso" : CAT_LABEL[p.cat]}>
+            <span lang="ja" aria-hidden="true">{p.custom ? "手作" : SEAL[p.cat]}</span>
+            <span className="seal-fr">{p.custom ? `Fiche perso · ${CAT_LABEL[p.cat]}` : CAT_LABEL[p.cat]}</span>
           </span>
         </div>
         <p className="desc">{p.desc}</p>
@@ -32,7 +33,7 @@ export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?
           <div><dt><span lang="ja">料金</span> Entrée</dt><dd>{p.prix}</dd></div>
           <div className={must(p.resa) ? "must" : ""}><dt><span lang="ja">予約</span> Réservation</dt><dd>{p.resa}</dd></div>
         </dl>
-        <details className="more">
+        {p.custom ? (p.lien ? <a className="small" href={p.lien} target="_blank" rel="noopener">Lien : {p.lien.replace(/^https?:\/\//, "").slice(0, 60)} ↗</a> : null) : <details className="more">
           <summary>Vidéos et avis de voyageurs</summary>
           <div className="media">
             <div>
@@ -64,10 +65,11 @@ export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?
               )}
             </div>
           </div>
-        </details>
+        </details>}
         <div className="actions">
           {!embedded && <AddButton id={p.id} />}
           <a className="btn ghost" href={gm} target="_blank" rel="noopener">Google Maps ↗</a>
+          {p.custom && <Link className="btn ghost" to={`/fiche/${p.id}`}>Modifier</Link>}
         </div>
       </div>
     </article>

@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.4.1",
+    date: "2026-10-18",
+    titre: "Zone le long du trajet",
+    notes: [
+      "La zone d'un voyage couvre aussi la ligne droite entre deux villes successives, dans l'ordre où vous les choisissez (numérotées dans le formulaire) : les lieux sur la route sont gardés.",
+      "Catalogue : la frise des villes ne montre que les villes qui ont au moins un lieu affiché avec les filtres en cours.",
+      "Catalogue : la frise n'affiche plus le nombre de lieux de Mes lieux.",
+    ],
+  },
+  {
     version: "2.4.0",
     date: "2026-10-18",
     titre: "Zone du voyage",

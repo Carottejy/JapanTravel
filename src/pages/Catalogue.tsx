@@ -20,7 +20,7 @@ const CATS: { v: "all" | "perso" | Category; l: string }[] = [
 
 export default function Catalogue() {
   const { session } = useAuth();
-  const { has, items } = useTrip();
+  const { has } = useTrip();
   const [params, setParams] = useSearchParams();
   const [cat, setCat] = useState<"all" | "perso" | Category>("all");
   const { places: PLACES, hay: HAY } = useCatalog();
@@ -48,11 +48,6 @@ export default function Catalogue() {
     list.forEach((p) => m.set(p.ville, [...(m.get(p.ville) ?? []), p]));
     return [...m.entries()].sort((a, b) => a[0] - b[0]);
   }, [list]);
-  const inTripByVille = useMemo(() => {
-    const c: Record<number, number> = {};
-    items.forEach((i) => { const p = PLACES.find((x) => x.id === i.place_id); if (p) c[p.ville] = (c[p.ville] ?? 0) + 1; });
-    return c;
-  }, [items, PLACES]);
 
   // Gare active de la ligne = ville en cours de lecture.
   useEffect(() => {
@@ -139,11 +134,12 @@ export default function Catalogue() {
 
       <nav className="line" aria-label="Aller à une ville">
         <ol ref={rail}>
-          {VILLES.map((v, i) => (
-            <li key={i} data-v={i} className={(i === active ? "on " : "") + (present.has(i) ? "" : "off")}>
-              <button disabled={!present.has(i)} aria-current={i === active ? "true" : undefined}
+          {/* Seules les villes qui ont au moins un lieu affiché (avec les filtres en cours) */}
+          {VILLES.map((v, i) => present.has(i) && (
+            <li key={i} data-v={i} className={i === active ? "on" : ""}>
+              <button aria-current={i === active ? "true" : undefined}
                 onClick={() => document.getElementById("ville-" + i)?.scrollIntoView({ block: "start" })}>
-                <span className="st" aria-hidden="true">{inTripByVille[i] ? <span className="st-n">{inTripByVille[i]}</span> : null}</span>
+                <span className="st" aria-hidden="true" />
                 <span className="st-jp" lang="ja">{villeKanji(i)}</span>
                 <span className="st-fr">{v.nom}</span>
               </button>

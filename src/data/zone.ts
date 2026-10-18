@@ -1,4 +1,4 @@
-/** Villes proposées pour définir la zone d'un voyage (un cercle de N km autour de chacune). */
+/** Villes proposées pour définir la zone d'un voyage : N km autour de chacune et de la ligne droite qui relie deux villes successives. */
 export interface ZoneVille { id: string; nom: string; lat: number; lon: number }
 
 export const ZONE_VILLES: ZoneVille[] = [
@@ -47,7 +47,21 @@ export function distKm(aLat: number, aLon: number, bLat: number, bLon: number) {
   return 12742 * Math.asin(Math.sqrt(h));
 }
 
-/** Le lieu est-il à moins de `km` d'au moins une des villes de la zone ? */
+/** Distance (km) d'un point au segment [a, b], sur une projection plane locale (précise à l'échelle du Japon). */
+export function distSegKm(p: { lat: number; lon: number }, a: ZoneVille, b: ZoneVille) {
+  const lat0 = ((a.lat + b.lat) / 2) * (Math.PI / 180);
+  const kx = 111.32 * Math.cos(lat0), ky = 110.57;
+  const ax = a.lon * kx, ay = a.lat * ky, bx = b.lon * kx, by = b.lat * ky, px = p.lon * kx, py = p.lat * ky;
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+  const t = l2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / l2)) : 0;
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+/** Le lieu est-il à moins de `km` d'une des villes de la zone, ou de la ligne droite qui relie
+ *  deux villes successives (dans l'ordre où elles ont été choisies) ? */
 export function inZone(p: { lat: number; lon: number }, villes: string[], km: number) {
-  return villes.some((id) => { const v = ZONE_VILLE_BY_ID[id]; return v && distKm(p.lat, p.lon, v.lat, v.lon) <= km; });
+  const vs = villes.map((id) => ZONE_VILLE_BY_ID[id]).filter(Boolean);
+  if (vs.some((v) => distKm(p.lat, p.lon, v.lat, v.lon) <= km)) return true;
+  for (let i = 0; i + 1 < vs.length; i++) if (distSegKm(p, vs[i], vs[i + 1]) <= km) return true;
+  return false;
 }

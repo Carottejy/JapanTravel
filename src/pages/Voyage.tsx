@@ -132,7 +132,7 @@ export default function Voyage() {
             </p>
             {voyage.zone_villes.length > 0 && (
               <p className="zone-sum small">
-                <span lang="ja" aria-hidden="true">圏</span> Zone : {voyage.zone_km} km autour de {voyage.zone_villes.map((id) => ZONE_VILLE_BY_ID[id]?.nom ?? id).join(", ")}
+                <span lang="ja" aria-hidden="true">圏</span> Zone : {voyage.zone_km} km autour de {voyage.zone_villes.map((id) => ZONE_VILLE_BY_ID[id]?.nom ?? id).join(" → ")}{voyage.zone_villes.length > 1 ? " et de la ligne qui les relie" : ""}
                 {" · "}<Link to={`/catalogue?zone=${voyage.id}`}>voir les lieux de la zone</Link>
               </p>
             )}
@@ -154,17 +154,22 @@ export default function Voyage() {
           <label>Retour<input type="date" required value={end} min={start || undefined} onChange={(e) => setEnd(e.target.value)} /></label>
           <fieldset className="zone-f">
             <legend>Zone du voyage <span className="muted small">(facultatif)</span></legend>
-            <p className="muted small">Choisissez les villes du voyage et un périmètre : le catalogue pourra n'afficher que les lieux à moins de ce nombre de km de l'une d'elles.</p>
+            <p className="muted small">Choisissez les villes dans l'ordre du voyage et un périmètre : le catalogue pourra n'afficher que les lieux à moins de ce nombre de km d'une ville ou de la ligne droite qui relie deux villes successives.</p>
             <div className="chips zone-chips" role="group" aria-label="Villes du voyage">
               {ZONE_VILLES.map((v) => (
-                <button type="button" key={v.id} className="chip" aria-pressed={zv.includes(v.id)} onClick={() => toggleZv(v.id)}>{v.nom}</button>
+                <button type="button" key={v.id} className="chip" aria-pressed={zv.includes(v.id)} onClick={() => toggleZv(v.id)}>{zv.includes(v.id) && <span className="dot-num zone-n">{zv.indexOf(v.id) + 1}</span>}{v.nom}</button>
               ))}
             </div>
             <label className="zone-km">Périmètre autour de chaque ville
               <span className="km-in"><input type="number" inputMode="numeric" min={1} max={500} step={1} value={zkm} disabled={!zv.length}
                 onChange={(e) => setZkm(e.target.value)} /> km</span>
             </label>
-            {zv.length > 0 && <p className="small">{zv.length} ville{zv.length > 1 ? "s" : ""} : {zv.map((id) => ZONE_VILLE_BY_ID[id].nom).join(", ")}</p>}
+            {zv.length > 0 && (
+              <p className="small zone-order">
+                Trajet : {zv.map((id) => ZONE_VILLE_BY_ID[id].nom).join(" → ")}
+                {" "}<button type="button" className="linkish" onClick={() => setZv([])}>tout effacer</button>
+              </p>
+            )}
           </fieldset>
           <div className="row">
             <button className="btn">{creating ? "Créer le voyage" : "Enregistrer"}</button>

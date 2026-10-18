@@ -615,3 +615,4 @@ body.dragging-on { user-select: none; -webkit-user-select: none; cursor: grabbin
 .zone-sum [lang="ja"] { color: var(--shu); font-weight: 800; }
 .zone-filter .chip [lang="ja"] { color: var(--shu); font-weight: 800; }
 .zone-filter .chip[aria-pressed="true"] [lang="ja"] { color: inherit; }
+.zone-n { margin-right: 5px; }

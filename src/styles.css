@@ -497,3 +497,9 @@ main { flex: 1; display: flex; flex-direction: column; padding-bottom: calc(var(
   .thumb.sm { width: 52px; }
   .day-stop-act { grid-column: 2 / -1; justify-content: flex-end; }
 }
+
+/* Info : installation */
+.install { background: var(--sheet); border: 1px solid var(--line); border-left: 5px solid var(--shu); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; justify-items: start; }
+.install h2 { font-size: 18px; }
+.install p { margin: 0; }
+.diag { font-family: var(--pixel); }

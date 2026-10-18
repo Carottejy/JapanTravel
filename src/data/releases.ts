@@ -11,6 +11,14 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.7.3",
+    date: "2026-10-18",
+    titre: "Bouton d'installation",
+    notes: [
+      "Dans l'onglet Info, un bouton « Installer l'application » apparaît quand le navigateur le permet, avec un petit diagnostic en cas de problème.",
+    ],
+  },
+  {
     version: "1.7.2",
     date: "2026-10-18",
     titre: "Installation : nouvel identifiant d'application",

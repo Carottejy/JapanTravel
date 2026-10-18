@@ -1,5 +1,6 @@
 import { APP_VERSION, RELEASES } from "../data/releases";
 import { PLACES } from "../data/catalogue";
+import InstallBox from "../components/InstallBox";
 
 const fmt = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
@@ -13,6 +14,7 @@ export default function Info() {
           avis Tripadvisor, contour du Japon Natural Earth. Tarifs relevés en octobre 2026.
         </p>
       </div>
+      <InstallBox />
       <section aria-labelledby="rn-h" className="releases">
         <h2 id="rn-h">Notes de version</h2>
         <ol>

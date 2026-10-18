@@ -13,6 +13,7 @@ import Trip from "./pages/Trip";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import Info from "./pages/Info";
+import "./components/InstallBox";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

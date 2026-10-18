@@ -11,6 +11,14 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.7.2",
+    date: "2026-10-18",
+    titre: "Installation : nouvel identifiant d'application",
+    notes: [
+      "L'application a un nouvel identifiant pour Android : un téléphone qui la croyait « déjà installée » peut maintenant l'installer normalement.",
+    ],
+  },
+  {
     version: "1.7.1",
     date: "2026-10-18",
     titre: "Installation sur téléphone",

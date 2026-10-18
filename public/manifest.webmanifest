@@ -1,27 +1,40 @@
 {
+ "id": "./",
  "name": "Japan Travel",
  "short_name": "Japan Travel",
+ "description": "Organiser son voyage au Japon : carte, catalogue de lieux, planning jour par jour.",
  "lang": "fr",
- "start_url": ".",
- "scope": ".",
+ "dir": "ltr",
+ "start_url": "./",
+ "scope": "./",
  "display": "standalone",
+ "orientation": "portrait",
  "background_color": "#1b2a4a",
  "theme_color": "#1b2a4a",
  "icons": [
   {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
    "src": "icon-512.png",
    "sizes": "512x512",
-   "type": "image/png"
+   "type": "image/png",
+   "purpose": "any"
   },
   {
-   "src": "apple-touch-icon.png",
-   "sizes": "180x180",
-   "type": "image/png"
+   "src": "icon-maskable-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
   },
   {
-   "src": "maneki.svg",
-   "sizes": "any",
-   "type": "image/svg+xml"
+   "src": "icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
   }
  ]
 }

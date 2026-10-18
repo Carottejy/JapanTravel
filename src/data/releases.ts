@@ -11,6 +11,15 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.7.1",
+    date: "2026-10-18",
+    titre: "Installation sur téléphone",
+    notes: [
+      "L'application s'installe désormais comme une vraie appli sur Android (icône dans la liste des applications) : icônes aux formats demandés par Android et service worker.",
+      "La dernière version de l'application reste consultable sans réseau ; vos lieux et votre voyage, eux, nécessitent une connexion.",
+    ],
+  },
+  {
     version: "1.7.0",
     date: "2026-10-17",
     titre: "7 nouveaux lieux au catalogue",

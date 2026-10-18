@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.2.1",
+    date: "2026-10-18",
+    titre: "Samouraïs et chats",
+    notes: [
+      "La Kyoto Samurai Walk a maintenant sa propre fiche, séparée du musée des Samouraïs et Ninjas.",
+      "4 hébergements où l'on dort avec des chats : Maneki Machiya (maisons de ville à Kyoto), Neco Republic Cat Ryokan (Osaka), My Cat Yugawara (près de Hakone) et Washin Village (Chiba).",
+      "Le catalogue compte désormais 288 lieux.",
+    ],
+  },
+  {
     version: "2.2.0",
     date: "2026-10-18",
     titre: "Les lieux de vos documents de voyage",

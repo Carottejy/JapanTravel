@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.1.0",
+    date: "2026-10-18",
+    titre: "Où manger, où dormir",
+    notes: [
+      "109 nouvelles fiches, dans chacune des 21 villes du carnet : 55 adresses pour manger (ramen, tonkatsu, okonomiyaki, cuisine des moines, marchés, cafés à thème…) et 54 pour dormir.",
+      "Hébergements variés : ryokans, shukubō (nuits au temple), maisons de ville et fermes chez l'habitant, auberges, capsules, manga-cafés, hôtel-librairie, hôtel des robots, yourtes sur la plage, glamping, hôtel-musée…",
+      "Le catalogue compte désormais 242 lieux. Prix indicatifs à vérifier avant de réserver.",
+    ],
+  },
+  {
     version: "2.0.0",
     date: "2026-10-18",
     titre: "Visiter, manger, dormir",

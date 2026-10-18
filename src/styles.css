@@ -264,6 +264,8 @@ main { flex: 1; display: flex; flex-direction: column; padding-bottom: calc(var(
   background: var(--sheet); border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
   border-top: 4px solid var(--zone, var(--ink));
   scroll-margin-top: calc(var(--top-h) + 100px); transition: box-shadow .3s;
+  /* 240+ fiches : le navigateur ne dessine (et ne télécharge les photos) que des fiches proches de l'écran */
+  content-visibility: auto; contain-intrinsic-size: auto 640px;
 }
 .card.flash { box-shadow: 0 0 0 3px var(--shu); }
 .card-main { display: flex; flex-direction: column; gap: 12px; padding: 16px; min-width: 0; }

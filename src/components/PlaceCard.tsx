@@ -12,7 +12,12 @@ export const SEAL: Record<Category, string> = { classique: "名所", hors: "穴�
 
 /** embedded : affichée dans Mes lieux (sans identifiant d'ancre ni bouton d'ajout, déjà gérés par la page). */
 export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?: boolean }) {
-  const gm = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`;
+  // Restaurants et hébergements : recherche par nom (plus précise que les coordonnées, approximatives à quelques rues près).
+  const parNom = !p.custom && p.usage !== "visiter" && !/^(Partout|Domiciles|Centre de|Pied du)/.test(p.lieu);
+  const gm = parNom
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.q}, ${p.lieu}`)}`
+    : `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`;
+  const lbl = p.usage === "dormir" ? ["Séjour", "Prix"] : p.usage === "manger" ? ["Durée", "Prix"] : ["Visite", "Entrée"];
   return (
     <article className={"card" + (embedded ? " embedded" : "")} id={embedded ? undefined : "lieu-" + p.id} style={{ ["--zone" as string]: ZONE_COLOR[p.zone] }}>
       <Photos place={p} />
@@ -30,8 +35,8 @@ export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?
         <p className="desc">{p.desc}</p>
         {p.note && <p className="note">{p.note}</p>}
         <dl className="stub">
-          <div><dt><span lang="ja">時間</span> Visite</dt><dd>{p.duree}</dd></div>
-          <div><dt><span lang="ja">料金</span> Entrée</dt><dd>{p.prix}</dd></div>
+          <div><dt><span lang="ja">時間</span> {lbl[0]}</dt><dd>{p.duree}</dd></div>
+          <div><dt><span lang="ja">料金</span> {lbl[1]}</dt><dd>{p.prix}</dd></div>
           <div className={must(p.resa) ? "must" : ""}><dt><span lang="ja">予約</span> Réservation</dt><dd>{p.resa}</dd></div>
         </dl>
         {p.custom ? (p.lien ? <a className="small" href={p.lien} target="_blank" rel="noopener">Lien : {p.lien.replace(/^https?:\/\//, "").slice(0, 60)} ↗</a> : null) : <details className="more">

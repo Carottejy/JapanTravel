@@ -11,6 +11,17 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.2.0",
+    date: "2026-10-18",
+    titre: "Les lieux de vos documents de voyage",
+    notes: [
+      "41 lieux repris de l'itinéraire, des excursions et des bons de réservation du dossier « Japon » : Kinkaku-ji, Ginkaku-ji, Heian-jingū, Tokyo Skytree, Shibuya Sky, teamLab Borderless, DisneySea, Nikkō, mont Misen…",
+      "Alpes japonaises : château de Matsumoto, singes des neiges de Jigokudani, vieux Takayama et village de Shirakawa-gō.",
+      "Vos activités réservées ont leur fiche : dîner-spectacle sumo à Tokyo, cérémonie du thé Koto à Kyoto, atelier okonomiyaki OKOSTA à Hiroshima.",
+      "Le catalogue compte désormais 283 lieux.",
+    ],
+  },
+  {
     version: "2.1.0",
     date: "2026-10-18",
     titre: "Où manger, où dormir",

@@ -7,6 +7,8 @@ import { useFav } from "../state/fav";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import PlaceCard from "../components/PlaceCard";
+import { usePlan } from "../state/plan";
+import { inZone } from "../data/zone";
 
 const CATS: { v: "all" | "perso" | Category; l: string }[] = [
   { v: "all", l: "Tous" },
@@ -30,11 +32,16 @@ export default function Catalogue() {
   const usage = (params.get("usage") as Usage | null) ?? null;
   const { favs } = useFav();
   const focus = params.get("lieu");
+  // Zone d'un voyage : lieux à moins de N km d'une des villes choisies pour ce voyage
+  const { voyages } = usePlan();
+  const zoned = session ? voyages.filter((v) => v.zone_villes.length && v.zone_km) : [];
+  const zoneV = zoned.find((v) => v.id === params.get("zone")) ?? null;
+  const setZone = (id: string | null) => { const p = new URLSearchParams(params); if (id) p.set("zone", id); else p.delete("zone"); p.delete("lieu"); setParams(p, { replace: true }); };
 
   const list = useMemo(() => {
     const nq = norm(q.trim());
-    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)) && (!onlyFav || !session || favs.has(p.id)) && (!usage || p.usage === usage));
-  }, [cat, q, onlyNew, onlyFav, usage, favs, session, has, PLACES, HAY]);
+    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)) && (!onlyFav || !session || favs.has(p.id)) && (!usage || p.usage === usage) && (!zoneV || inZone(p, zoneV.zone_villes, zoneV.zone_km!)));
+  }, [cat, q, onlyNew, onlyFav, usage, favs, session, has, PLACES, HAY, zoneV]);
 
   const groups = useMemo(() => {
     const m = new Map<number, typeof list>();
@@ -102,6 +109,17 @@ export default function Catalogue() {
             </button>
           ))}
         </div>
+        {zoned.length > 0 && (
+          <div className="chips zone-filter" role="group" aria-label="Zone d'un voyage">
+            <button className="chip" aria-pressed={!zoneV} onClick={() => setZone(null)}>Tout le Japon</button>
+            {zoned.map((v) => (
+              <button key={v.id} className="chip" aria-pressed={zoneV?.id === v.id} onClick={() => setZone(v.id)}
+                title={`${v.zone_km} km autour des villes du voyage`}>
+                <span lang="ja">圏</span> Zone « {v.nom} » · {v.zone_km} km
+              </button>
+            ))}
+          </div>
+        )}
         <div className="chips" role="group" aria-label="Type de lieu">
           {CATS.filter((c) => c.v !== "perso" || PLACES.some((p) => p.custom)).map((c) => <button key={c.v} className="chip" aria-pressed={cat === c.v} onClick={() => setCat(c.v)}>{c.l}</button>)}
         </div>

@@ -7,6 +7,7 @@ import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import { dayLabel, usePlan } from "../state/plan";
 import VoyageSwitch from "../components/VoyageSwitch";
+import { ZONE_VILLES, ZONE_VILLE_BY_ID } from "../data/zone";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -19,6 +20,8 @@ export default function Voyage() {
   const [nom, setNom] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
+  const [zv, setZv] = useState<string[]>([]);
+  const [zkm, setZkm] = useState("30");
   const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
   // Formulaire : modifier le voyage actif, ou en créer un nouveau
   const [mode, setMode] = useState<"vue" | "modif" | "nouveau">("vue");
@@ -77,11 +80,12 @@ export default function Voyage() {
     };
   }, [dragId]);
 
-  const fill = (v: typeof voyage) => { setNom(v?.nom ?? "Mon voyage"); setStart(v?.start_date ?? ""); setEnd(v?.end_date ?? ""); };
+  const fill = (v: typeof voyage) => { setNom(v?.nom ?? "Mon voyage"); setStart(v?.start_date ?? ""); setEnd(v?.end_date ?? ""); setZv(v?.zone_villes ?? []); setZkm(String(v?.zone_km ?? 30)); };
   useEffect(() => { if (mode !== "nouveau") fill(voyage); }, [voyage, mode]);
   const voyageId = voyage?.id;
   useEffect(() => { setMode("vue"); setMsg(null); }, [voyageId]);
-  const startNew = () => { setMode("nouveau"); setMsg(null); setNom(voyages.length ? `Voyage ${voyages.length + 1}` : "Mon voyage"); setStart(""); setEnd(""); };
+  const startNew = () => { setMode("nouveau"); setMsg(null); setNom(voyages.length ? `Voyage ${voyages.length + 1}` : "Mon voyage"); setStart(""); setEnd(""); setZv([]); setZkm("30"); };
+  const toggleZv = (id: string) => setZv(zv.includes(id) ? zv.filter((x) => x !== id) : [...zv, id]);
 
   if (!authLoading && !session)
     return (
@@ -101,7 +105,8 @@ export default function Voyage() {
   const creating = mode === "nouveau" || !voyage;
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const err = creating ? await createVoyage(nom || "Mon voyage", start, end) : await saveVoyage(nom, start, end);
+    const input = { nom: nom || "Mon voyage", start, end, zoneVilles: zv, zoneKm: zv.length ? Number(zkm) : null };
+    const err = creating ? await createVoyage(input) : await saveVoyage(input);
     setMsg(err ? { ok: false, t: err } : { ok: true, t: creating ? "Voyage créé." : "Voyage enregistré." });
     if (!err) setMode("vue");
   };
@@ -125,6 +130,12 @@ export default function Voyage() {
               <strong>{voyage.nom}</strong> · {nbDays} jour{nbDays > 1 ? "s" : ""}, du {dayLabel(voyage.start_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
               {" "}au {dayLabel(voyage.end_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}.
             </p>
+            {voyage.zone_villes.length > 0 && (
+              <p className="zone-sum small">
+                <span lang="ja" aria-hidden="true">圏</span> Zone : {voyage.zone_km} km autour de {voyage.zone_villes.map((id) => ZONE_VILLE_BY_ID[id]?.nom ?? id).join(", ")}
+                {" · "}<Link to={`/catalogue?zone=${voyage.id}`}>voir les lieux de la zone</Link>
+              </p>
+            )}
             <div className="row">
               <button className="btn ghost sm" onClick={() => { setMode("modif"); setMsg(null); }}>Modifier le voyage</button>
               {route.length > 0 && <Link to="/" className="btn sm">Voir le trajet sur la carte</Link>}
@@ -141,6 +152,20 @@ export default function Voyage() {
           <label className="v-nom">Nom du voyage<input type="text" required maxLength={80} value={nom} placeholder="Mon voyage" onChange={(e) => setNom(e.target.value)} /></label>
           <label>Départ<input type="date" required value={start} onChange={(e) => setStart(e.target.value)} /></label>
           <label>Retour<input type="date" required value={end} min={start || undefined} onChange={(e) => setEnd(e.target.value)} /></label>
+          <fieldset className="zone-f">
+            <legend>Zone du voyage <span className="muted small">(facultatif)</span></legend>
+            <p className="muted small">Choisissez les villes du voyage et un périmètre : le catalogue pourra n'afficher que les lieux à moins de ce nombre de km de l'une d'elles.</p>
+            <div className="chips zone-chips" role="group" aria-label="Villes du voyage">
+              {ZONE_VILLES.map((v) => (
+                <button type="button" key={v.id} className="chip" aria-pressed={zv.includes(v.id)} onClick={() => toggleZv(v.id)}>{v.nom}</button>
+              ))}
+            </div>
+            <label className="zone-km">Périmètre autour de chaque ville
+              <span className="km-in"><input type="number" inputMode="numeric" min={1} max={500} step={1} value={zkm} disabled={!zv.length}
+                onChange={(e) => setZkm(e.target.value)} /> km</span>
+            </label>
+            {zv.length > 0 && <p className="small">{zv.length} ville{zv.length > 1 ? "s" : ""} : {zv.map((id) => ZONE_VILLE_BY_ID[id].nom).join(", ")}</p>}
+          </fieldset>
           <div className="row">
             <button className="btn">{creating ? "Créer le voyage" : "Enregistrer"}</button>
             {voyage && <button type="button" className="btn ghost" onClick={() => { setMode("vue"); fill(voyage); setMsg(null); }}>Annuler</button>}

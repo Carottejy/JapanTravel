@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.4.0",
+    date: "2026-10-18",
+    titre: "Zone du voyage",
+    notes: [
+      "En créant ou en modifiant un voyage, choisissez ses villes (35 villes proposées, de Sapporo à Fukuoka) et un périmètre en km autour de chacune.",
+      "Catalogue : un filtre « 圏 Zone » par voyage n'affiche que les lieux situés dans ce périmètre ; il se combine avec la recherche, les usages, les types et les favoris.",
+      "Sous le voyage, la zone est rappelée avec un lien direct vers ses lieux dans le catalogue.",
+    ],
+  },
+  {
     version: "2.3.0",
     date: "2026-10-18",
     titre: "Plusieurs voyages",

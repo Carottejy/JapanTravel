@@ -10,15 +10,17 @@ import { useTrip } from "./trip";
 
 export type Kind = "jour" | "nuit";
 export interface Etape { id: string; voyage_id: string; day: string; place_id: string; position: number; kind: Kind }
-export interface Voyage { id: string; nom: string; start_date: string; end_date: string }
+export interface Voyage { id: string; nom: string; start_date: string; end_date: string; zone_villes: string[]; zone_km: number | null }
+/** Ce que l'on saisit pour créer ou modifier un voyage */
+export interface VoyageInput { nom: string; start: string; end: string; zoneVilles: string[]; zoneKm: number | null }
 export interface StopInfo { p: Place; day: string; dayIndex: number; n: number; kind: Kind }
 
 interface PlanValue {
   voyages: Voyage[];                    // tous les voyages du compte, par date de départ
   voyage: Voyage | null;                // voyage actif
   setActive: (id: string) => void;
-  createVoyage: (nom: string, start: string, end: string) => Promise<string | null>;
-  saveVoyage: (nom: string, start: string, end: string) => Promise<string | null>;
+  createVoyage: (x: VoyageInput) => Promise<string | null>;
+  saveVoyage: (x: VoyageInput) => Promise<string | null>;
   deleteVoyage: (id: string) => Promise<void>;
   etapes: Etape[];                      // étapes du voyage actif
   loading: boolean;
@@ -38,6 +40,12 @@ interface PlanValue {
 }
 
 const PlanContext = createContext<PlanValue | null>(null);
+const COLS = "id, nom, start_date, end_date, zone_villes, zone_km";
+const norm = (v: Voyage): Voyage => ({ ...v, zone_villes: v.zone_villes ?? [], zone_km: v.zone_km ?? null });
+const row = (x: VoyageInput) => ({
+  nom: x.nom.trim(), start_date: x.start, end_date: x.end,
+  zone_villes: x.zoneVilles, zone_km: x.zoneVilles.length ? Math.round(x.zoneKm ?? 0) : null,
+});
 const ACTIVE_KEY = "jt-voyage-actif";
 
 export const addDays = (iso: string, n: number) => {
@@ -51,8 +59,9 @@ export const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions = { weekd
 const readActive = () => { try { return localStorage.getItem(ACTIVE_KEY); } catch { return null; } };
 const writeActive = (id: string) => { try { localStorage.setItem(ACTIVE_KEY, id); } catch { /* stockage indisponible */ } };
 
-function checkDates(nom: string, start: string, end: string) {
+function checkDates({ nom, start, end, zoneVilles, zoneKm }: VoyageInput) {
   if (!nom.trim()) return "Donnez un nom à ce voyage.";
+  if (zoneVilles.length && !(zoneKm && zoneKm >= 1 && zoneKm <= 500)) return "Indiquez un périmètre entre 1 et 500 km autour des villes choisies.";
   if (!start || !end) return "Choisissez une date de départ et une date de retour.";
   if (end < start) return "La date de retour doit être après la date de départ.";
   if ((new Date(end).getTime() - new Date(start).getTime()) / 864e5 > 90) return "Un voyage ne peut pas dépasser 90 jours.";
@@ -74,11 +83,11 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     let off = false;
     setLoading(true);
     Promise.all([
-      supabase.from("voyages").select("id, nom, start_date, end_date").order("start_date"),
+      supabase.from("voyages").select(COLS).order("start_date"),
       supabase.from("voyage_etapes").select("id, voyage_id, day, place_id, position, kind").order("day").order("position"),
     ]).then(([v, e]) => {
       if (off) return;
-      setVoyages(((v.data as Voyage[]) ?? []).sort((a, b) => a.start_date.localeCompare(b.start_date)));
+      setVoyages(((v.data as Voyage[]) ?? []).map(norm).sort((a, b) => a.start_date.localeCompare(b.start_date)));
       setAll(((e.data as Etape[]) ?? []).map((x) => ({ ...x, kind: x.kind ?? "jour" })));
       setLoading(false);
     });
@@ -123,31 +132,32 @@ export function PlanProvider({ children }: { children: ReactNode }) {
 
   const sortV = (list: Voyage[]) => [...list].sort((a, b) => a.start_date.localeCompare(b.start_date));
 
-  const createVoyage = useCallback(async (nom: string, start: string, end: string) => {
-    const bad = checkDates(nom, start, end);
+  const createVoyage = useCallback(async (x: VoyageInput) => {
+    const bad = checkDates(x);
     if (bad) return bad;
-    const { data, error } = await supabase.from("voyages").insert({ nom: nom.trim(), start_date: start, end_date: end })
-      .select("id, nom, start_date, end_date").single();
+    const { data, error } = await supabase.from("voyages").insert(row(x)).select(COLS).single();
     if (error || !data) return "Le voyage n'a pas pu être créé.";
-    setVoyages((cur) => sortV([...cur, data as Voyage]));
-    setActive((data as Voyage).id);
+    const v = norm(data as Voyage);
+    setVoyages((cur) => sortV([...cur, v]));
+    setActive(v.id);
     return null;
   }, [setActive]);
 
-  const saveVoyage = useCallback(async (nom: string, start: string, end: string) => {
+  const saveVoyage = useCallback(async (x: VoyageInput) => {
     if (!voyage) return "Aucun voyage sélectionné.";
-    const bad = checkDates(nom, start, end);
+    const bad = checkDates(x);
     if (bad) return bad;
+    const { start, end } = x;
     const outside = etapes.filter((e) => e.day < start || e.day > end || (e.kind === "nuit" && e.day >= end));
     if (outside.length && !window.confirm(`${outside.length} lieu(x) placé(s) sur des jours hors de ces dates seront retirés du planning. Continuer ?`))
       return "Dates inchangées.";
-    const { error } = await supabase.from("voyages").update({ nom: nom.trim(), start_date: start, end_date: end, updated_at: new Date().toISOString() }).eq("id", voyage.id);
+    const { error } = await supabase.from("voyages").update({ ...row(x), updated_at: new Date().toISOString() }).eq("id", voyage.id);
     if (error) return "Le voyage n'a pas pu être enregistré.";
     if (outside.length) {
       await supabase.from("voyage_etapes").delete().in("id", outside.map((e) => e.id));
       setAll((cur) => cur.filter((e) => !outside.includes(e)));
     }
-    setVoyages((cur) => sortV(cur.map((v) => (v.id === voyage.id ? { ...v, nom: nom.trim(), start_date: start, end_date: end } : v))));
+    setVoyages((cur) => sortV(cur.map((v) => (v.id === voyage.id ? { ...v, ...norm({ id: v.id, ...row(x) } as Voyage) } : v))));
     return null;
   }, [voyage, etapes]);
 

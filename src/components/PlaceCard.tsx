@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CAT_LABEL, ZONE_COLOR, type Category, type Place } from "../data/catalogue";
+import { CAT_LABEL, USAGE_KANJI, USAGE_LABEL, ZONE_COLOR, type Category, type Place } from "../data/catalogue";
 import Photos from "./Photos";
 import AddButton from "./AddButton";
 import FavButton from "./FavButton";
@@ -20,7 +20,7 @@ export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?
         <div className="card-head">
           <div className="card-title">
             <h3>{!embedded && <FavButton id={p.id} nom={p.nom} />}{p.nom}</h3>
-            <p className="meta">{p.lieu}</p>
+            <p className="meta"><span className={"usage-tag " + p.usage}><span lang="ja">{USAGE_KANJI[p.usage]}</span> {USAGE_LABEL[p.usage]}</span> {p.lieu}</p>
           </div>
           <span className={"seal " + (p.custom ? "perso" : p.cat)} title={p.custom ? "Fiche perso" : CAT_LABEL[p.cat]}>
             <span lang="ja" aria-hidden="true">{p.custom ? "手作" : SEAL[p.cat]}</span>

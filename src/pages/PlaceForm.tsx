@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { CAT_LABEL, VILLES, type Category } from "../data/catalogue";
+import { CAT_LABEL, USAGE_LABEL, VILLES, type Category, type Usage } from "../data/catalogue";
 import { useAuth } from "../state/auth";
 import { VILLE_CENTRE, parseCoords, useCatalog, type CustomInput } from "../state/catalog";
 import { useTrip } from "../state/trip";
@@ -13,7 +13,7 @@ export default function PlaceForm() {
   const { add } = useTrip();
   const nav = useNavigate();
   const row = id ? customRows[id] : undefined;
-  const [f, setF] = useState<CustomInput>(row ?? { nom: "", cat: "hors", ville: 0, lieu: "", lat: 0, lon: 0, description: "", duree: "", prix: "", resa: "", lien: "" });
+  const [f, setF] = useState<CustomInput>(row ?? { nom: "", cat: "hors", usage: "visiter", ville: 0, lieu: "", lat: 0, lon: 0, description: "", duree: "", prix: "", resa: "", lien: "" });
   const [pos, setPos] = useState(row ? `${row.lat}, ${row.lon}` : "");
   const [addToMine, setAddToMine] = useState(!row);
   const [err, setErr] = useState<string | null>(null);
@@ -67,6 +67,14 @@ export default function PlaceForm() {
             </select>
           </label>
         </div>
+        <fieldset className="usage-pick">
+          <legend>Ce lieu sert à</legend>
+          {(Object.keys(USAGE_LABEL) as Usage[]).map((u) => (
+            <label key={u} className={"chip" + (f.usage === u ? " on" : "")}>
+              <input type="radio" name="usage" value={u} checked={f.usage === u} onChange={() => set("usage", u)} /> {USAGE_LABEL[u]}
+            </label>
+          ))}
+        </fieldset>
         <label>Quartier ou adresse
           <input maxLength={160} value={f.lieu} onChange={(e) => set("lieu", e.target.value)} placeholder="Ex. : Pontochō, Kyoto" />
         </label>

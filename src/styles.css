@@ -547,3 +547,33 @@ body.dragging-on { user-select: none; -webkit-user-select: none; cursor: grabbin
 .fav:hover { color: var(--kin); background: var(--soft); }
 .fav.on { color: var(--kin); }
 .fav-ico { color: var(--kin); }
+
+/* ── Usages : visiter / manger / dormir ── */
+.usage-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 700; border-radius: 4px; padding: 0 6px; margin-right: 6px; border: 1px solid currentColor; }
+.usage-tag.visiter { color: var(--rail); }
+.usage-tag.manger { color: var(--shu); }
+.usage-tag.dormir { color: var(--kin); }
+.usage-chips .chip [lang="ja"] { font-weight: 800; }
+.usage-chips .chip .dot-num { opacity: .7; margin-left: 2px; }
+.usage-pick { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.usage-pick legend { font-size: 14px; font-weight: 500; margin-bottom: 6px; padding: 0; }
+.usage-pick .chip { display: inline-flex; gap: 4px; align-items: center; }
+.usage-pick .chip.on { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.usage-pick input { position: absolute; opacity: 0; pointer-events: none; }
+.usage-pick .chip:has(input:focus-visible) { outline: 2px solid var(--shu); outline-offset: 2px; }
+.assign select { width: 100%; border: 1.5px solid var(--rail); background: var(--sheet); color: var(--ink); border-radius: 8px; padding: 9px 12px; font-size: 15px; min-height: 44px; cursor: pointer; }
+
+/* ── Voyage : nuits entre les jours ── */
+.night-li { list-style: none; margin: -6px 0; position: relative; }
+.night { margin: 0 14px; background: color-mix(in srgb, var(--ai) 88%, transparent); color: var(--ai-ink); border-radius: 0 0 10px 10px; padding: 10px 14px; display: grid; gap: 8px;
+  background-image: radial-gradient(circle at 92% 30%, rgba(255,255,255,.18) 0 7px, transparent 8px); }
+.night-head { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+.night-k { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 5px; background: var(--kin); color: #fff; font-weight: 800; }
+.night-stay { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; background: rgba(255,255,255,.08); border-radius: 8px; padding: 6px 8px; }
+.night-stay .muted { color: rgba(244,241,232,.7); }
+.night-stay .icon { background: transparent; color: var(--ai-ink); border-color: rgba(244,241,232,.3); }
+.night-pick { display: grid; gap: 8px; }
+.night-pick .btn.ghost { color: var(--ai-ink); border-color: rgba(244,241,232,.35); justify-self: start; text-align: left; }
+.night-pick select { background: rgba(255,255,255,.08); color: var(--ai-ink); border-color: rgba(244,241,232,.35); }
+.night-pick select option { color: #1d2233; }
+.night-pick a { color: var(--ai-ink); }

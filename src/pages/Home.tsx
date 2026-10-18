@@ -32,7 +32,7 @@ export default function Home() {
           <div className="map-card" style={{ ["--zone" as string]: ZONE_COLOR[sel.zone] }}>
             <button className="map-card-close" onClick={() => select(null)} aria-label="Fermer">✕</button>
             <p className="muted small">
-              {selStops.map((s) => `Jour ${days.indexOf(s.day) + 1} (${dayLabel(s.day, { weekday: "short", day: "numeric", month: "short" })}), étape ${s.n}`).join(" ; ")}
+              {selStops.map((s) => s.kind === "nuit" ? `Nuit du ${dayLabel(s.day, { weekday: "short", day: "numeric", month: "short" })} (jour ${days.indexOf(s.day) + 1}), étape ${s.n}` : `Jour ${days.indexOf(s.day) + 1} (${dayLabel(s.day, { weekday: "short", day: "numeric", month: "short" })}), étape ${s.n}`).join(" ; ")}
               {selStops.length ? " · " : ""}{VILLES[sel.ville].nom}
             </p>
             <h2>{sel.nom}</h2>

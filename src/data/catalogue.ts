@@ -1,12 +1,17 @@
 import raw from "./catalogue.json";
 
 export type Category = "classique" | "hors" | "activite";
+/** Usage du lieu : à visiter, pour manger, pour dormir */
+export type Usage = "visiter" | "manger" | "dormir";
+export const USAGE_LABEL: Record<Usage, string> = { visiter: "À visiter", manger: "Pour manger", dormir: "Pour dormir" };
+export const USAGE_KANJI: Record<Usage, string> = { visiter: "観", manger: "食", dormir: "宿" };
 export type Zone = "tokyo" | "fuji" | "chubu" | "kansai" | "osaka" | "kii" | "sanyo" | "hiro";
 
 export interface Place {
   id: string;
   nom: string;
   cat: Category;
+  usage: Usage;
   zone: Zone;
   lieu: string;
   lat: number;

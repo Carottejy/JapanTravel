@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.0.0",
+    date: "2026-10-18",
+    titre: "Visiter, manger, dormir",
+    notes: [
+      "Chaque lieu est classé : à visiter (観), pour manger (食) ou pour dormir (宿) ; le catalogue se filtre par usage, et vos fiches perso se classent à la création.",
+      "Voyage : entre chaque jour, une section « Nuit » (泊) pour choisir où dormir, avec un raccourci « Même hébergement que la veille ». L'hébergement termine la journée sur la carte.",
+      "Mes lieux : filtre par usage, et un menu sur chaque lieu pour le placer directement dans le voyage (un jour pour visiter ou manger, une nuit pour dormir).",
+    ],
+  },
+  {
     version: "1.9.0",
     date: "2026-10-18",
     titre: "Favoris",

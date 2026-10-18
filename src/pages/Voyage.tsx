@@ -14,7 +14,7 @@ export default function Voyage() {
   const { session, loading: authLoading } = useAuth();
   const { items, noteOf } = useTrip();
   const { byId, rank: RANK } = useCatalog();
-  const { voyage, etapes, days, route, saveDates, addToDay, removeEtape, moveEtape, moveToDay, daysOf, loading } = usePlan();
+  const { voyage, etapes, days, route, saveDates, addToDay, removeEtape, moveEtape, moveToDay, daysOf, nightsOf, nights, loading } = usePlan();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
@@ -59,7 +59,7 @@ export default function Voyage() {
     let raf = 0;
     const tick = () => {
       const d = dragRef.current;
-      if (d) { if (d.y < 110) window.scrollBy(0, -12); else if (d.y > window.innerHeight - 150) window.scrollBy(0, 12); }
+      if (d) { if (d.y < 180) window.scrollBy(0, -12); else if (d.y > window.innerHeight - 150) window.scrollBy(0, 12); }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -88,7 +88,9 @@ export default function Voyage() {
     );
 
   const mine: Place[] = items.map((i) => byId[i.place_id]).filter(Boolean).sort((a, b) => a.ville - b.ville || RANK[a.id] - RANK[b.id]);
-  const unplanned = mine.filter((p) => daysOf(p.id).filter((d) => days.includes(d)).length === 0);
+  const unplanned = mine.filter((p) => daysOf(p.id).filter((d) => days.includes(d)).length === 0 && nightsOf(p.id).filter((d) => nights.includes(d)).length === 0);
+  const sleepers = mine.filter((p) => p.usage === "dormir");
+  const others = mine.filter((p) => p.usage !== "dormir");
   const byVille = mine.reduce<Record<number, Place[]>>((m, p) => ((m[p.ville] ??= []).push(p), m), {});
 
   const submit = async (e: FormEvent) => {
@@ -147,7 +149,7 @@ export default function Voyage() {
 
           <nav className="daybar" aria-label="Aller à un jour">
             {days.map((d, i) => {
-              const c = etapes.filter((e) => e.day === d).length;
+              const c = etapes.filter((e) => e.day === d && e.kind === "jour").length;
               return (
                 <button key={d} className={"daypill" + (c ? " has" : "")} onClick={() => document.getElementById("jour-" + d)?.scrollIntoView({ block: "start" })}>
                   <span className="dot-num">J{i + 1}</span>
@@ -159,10 +161,13 @@ export default function Voyage() {
 
           <ol className="days">
             {days.map((d, i) => {
-              const today = route.filter((s) => s.day === d);
+              const today = route.filter((s) => s.day === d && s.kind === "jour");
+              const sleep = route.filter((s) => s.day === d && s.kind === "nuit");
+              const prevSleep = i > 0 ? route.filter((s) => s.day === days[i - 1] && s.kind === "nuit") : [];
               const ids = new Set(today.map((s) => s.p.id));
               return (
-                <li key={d} id={"jour-" + d} data-day={d} className={"day" + (drag?.day === d ? " drop-target" : "")}>
+                <Fragment key={d}>
+                <li id={"jour-" + d} data-day={d} className={"day" + (drag?.day === d ? " drop-target" : "")}>
                   <div className="day-head">
                     <span className="day-n dot-num">J{pad(i + 1)}</span>
                     <div>
@@ -173,8 +178,8 @@ export default function Voyage() {
                   {(today.length > 0 || drag?.day === d) && (
                     <ol className="day-stops">
                       {today.map((s, k) => {
-                        const e = etapes.find((x) => x.day === d && x.place_id === s.p.id)!;
-                        const before = drag?.day === d && drag.index === today.filter((t) => etapes.find((x) => x.day === d && x.place_id === t.p.id)?.id !== drag.id).indexOf(s);
+                        const e = etapes.find((x) => x.day === d && x.kind === "jour" && x.place_id === s.p.id)!;
+                        const before = drag?.day === d && drag.index === today.filter((t) => etapes.find((x) => x.day === d && x.kind === "jour" && x.place_id === t.p.id)?.id !== drag.id).indexOf(s);
                         return (
                           <Fragment key={s.p.id}>
                           {before && <li key={"drop-" + s.p.id} className="drop-line" aria-hidden="true" />}
@@ -201,7 +206,7 @@ export default function Voyage() {
                           </Fragment>
                         );
                       })}
-                      {drag?.day === d && drag.index >= today.filter((t) => etapes.find((x) => x.day === d && x.place_id === t.p.id)?.id !== drag.id).length && (
+                      {drag?.day === d && drag.index >= today.filter((t) => etapes.find((x) => x.day === d && x.kind === "jour" && x.place_id === t.p.id)?.id !== drag.id).length && (
                         <li className="drop-line" aria-hidden="true" />
                       )}
                     </ol>
@@ -212,7 +217,7 @@ export default function Voyage() {
                       <option value="">+ Ajouter un lieu à ce jour…</option>
                       {Object.entries(byVille).map(([v, ps]) => (
                         <optgroup key={v} label={VILLES[+v].nom}>
-                          {ps.filter((p) => !ids.has(p.id)).map((p) => {
+                          {ps.filter((p) => !ids.has(p.id) && p.usage !== "dormir").map((p) => {
                             const other = daysOf(p.id).filter((x) => days.includes(x)).map((x) => "J" + (days.indexOf(x) + 1));
                             return <option key={p.id} value={p.id}>{p.nom}{other.length ? ` (déjà ${other.join(", ")})` : ""}</option>;
                           })}
@@ -221,6 +226,46 @@ export default function Voyage() {
                     </select>
                   </label>
                 </li>
+                {i < days.length - 1 && (
+                  <li className="night-li"><section className="night" aria-label={`Nuit du ${dayLabel(d, { weekday: "long", day: "numeric", month: "long" })}`}>
+                      <div className="night-head">
+                        <span className="night-k" lang="ja" aria-hidden="true">泊</span>
+                        <span>Nuit du {dayLabel(d, { weekday: "short", day: "numeric" })} au {dayLabel(days[i + 1], { weekday: "short", day: "numeric", month: "short" })}</span>
+                      </div>
+                      {sleep.map((s) => {
+                        const e = etapes.find((x) => x.day === d && x.kind === "nuit" && x.place_id === s.p.id)!;
+                        return (
+                          <div key={s.p.id} className="night-stay">
+                            <span className="n" style={{ background: ZONE_COLOR[s.p.zone] }}>{s.n}</span>
+                            <div className="day-stop-txt">
+                              <strong>{s.p.nom}</strong>
+                              <span className="muted small">{VILLES[s.p.ville].nom}{noteOf(s.p.id) ? ` · ✎ ${noteOf(s.p.id)}` : ""}</span>
+                            </div>
+                            <button className="icon" onClick={() => removeEtape(e.id)} aria-label={`Retirer ${s.p.nom} de cette nuit`}>✕</button>
+                          </div>
+                        );
+                      })}
+                      {sleep.length === 0 && (
+                        <div className="night-pick">
+                          {prevSleep.length > 0 && (
+                            <button className="btn ghost sm" onClick={() => prevSleep.forEach((s) => addToDay(d, s.p.id, "nuit"))}>
+                              Même hébergement que la veille ({prevSleep.map((s) => s.p.nom).join(", ")})
+                            </button>
+                          )}
+                          <label className="day-add">
+                            <span className="sr-only">Choisir où dormir la nuit du jour {i + 1}</span>
+                            <select value="" onChange={(ev) => ev.target.value && addToDay(d, ev.target.value, "nuit")}>
+                              <option value="">+ Choisir où dormir…</option>
+                              {sleepers.length > 0 && <optgroup label="Pour dormir">{sleepers.map((p) => <option key={p.id} value={p.id}>{p.nom} ({VILLES[p.ville].nom})</option>)}</optgroup>}
+                              {others.length > 0 && <optgroup label="Autres lieux de ma liste">{others.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}</optgroup>}
+                            </select>
+                          </label>
+                          {sleepers.length === 0 && <Link className="small" to="/catalogue?usage=dormir">Trouver où dormir dans le catalogue</Link>}
+                        </div>
+                      )}
+                    </section></li>
+                )}
+                </Fragment>
               );
             })}
           </ol>

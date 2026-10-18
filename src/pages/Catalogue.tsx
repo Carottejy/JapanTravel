@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { VILLES, norm, villeKanji, type Category } from "../data/catalogue";
+import { USAGE_KANJI, USAGE_LABEL, VILLES, norm, villeKanji, type Category, type Usage } from "../data/catalogue";
 import { useCatalog } from "../state/catalog";
 import { useFav } from "../state/fav";
 import { useAuth } from "../state/auth";
@@ -27,13 +27,14 @@ export default function Catalogue() {
   const rail = useRef<HTMLOListElement>(null);
   const onlyNew = params.get("nouveaux") === "1";
   const onlyFav = params.get("favoris") === "1";
+  const usage = (params.get("usage") as Usage | null) ?? null;
   const { favs } = useFav();
   const focus = params.get("lieu");
 
   const list = useMemo(() => {
     const nq = norm(q.trim());
-    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)) && (!onlyFav || !session || favs.has(p.id)));
-  }, [cat, q, onlyNew, onlyFav, favs, session, has, PLACES, HAY]);
+    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)) && (!onlyFav || !session || favs.has(p.id)) && (!usage || p.usage === usage));
+  }, [cat, q, onlyNew, onlyFav, usage, favs, session, has, PLACES, HAY]);
 
   const groups = useMemo(() => {
     const m = new Map<number, typeof list>();
@@ -93,6 +94,14 @@ export default function Catalogue() {
 
       <div className="filters">
         <input type="search" placeholder="Rechercher un lieu, un quartier…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Rechercher un lieu" />
+        <div className="chips usage-chips" role="group" aria-label="Usage du lieu">
+          <button className="chip" aria-pressed={!usage} onClick={() => { const p = new URLSearchParams(params); p.delete("usage"); setParams(p, { replace: true }); }}>Tous les usages</button>
+          {(["visiter", "manger", "dormir"] as Usage[]).map((u) => (
+            <button key={u} className="chip" aria-pressed={usage === u} onClick={() => { const p = new URLSearchParams(params); p.set("usage", u); p.delete("lieu"); setParams(p, { replace: true }); }}>
+              <span lang="ja">{USAGE_KANJI[u]}</span> {USAGE_LABEL[u]}
+            </button>
+          ))}
+        </div>
         <div className="chips" role="group" aria-label="Type de lieu">
           {CATS.filter((c) => c.v !== "perso" || PLACES.some((p) => p.custom)).map((c) => <button key={c.v} className="chip" aria-pressed={cat === c.v} onClick={() => setCat(c.v)}>{c.l}</button>)}
         </div>

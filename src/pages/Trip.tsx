@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { VILLES, ZONE_COLOR, villeKanji, type Place } from "../data/catalogue";
+import { USAGE_KANJI, USAGE_LABEL, VILLES, ZONE_COLOR, villeKanji, type Place, type Usage } from "../data/catalogue";
 import { useCatalog } from "../state/catalog";
 import Thumb from "../components/Thumb";
 import NoteBox from "../components/NoteBox";
@@ -18,7 +18,8 @@ const saveFolded = (v: number[]) => { try { localStorage.setItem(KEY, JSON.strin
 export default function Trip() {
   const { session, loading: authLoading } = useAuth();
   const { items, remove, loading } = useTrip();
-  const { days, daysOf, removePlaceEverywhere } = usePlan();
+  const { voyage, days, nights, daysOf, nightsOf, addToDay, removePlaceEverywhere } = usePlan();
+  const [usage, setUsage] = useState<Usage | "all">("all");
   const { byId, rank: RANK } = useCatalog();
   const [folded, setFolded] = useState<number[]>(loadFolded);
   const [open, setOpen] = useState<string[]>([]);
@@ -35,7 +36,10 @@ export default function Trip() {
       </div>
     );
 
-  const places = items.map((i) => byId[i.place_id]).filter(Boolean).sort((a, b) => a.ville - b.ville || RANK[a.id] - RANK[b.id]);
+  const all = items.map((i) => byId[i.place_id]).filter(Boolean).sort((a, b) => a.ville - b.ville || RANK[a.id] - RANK[b.id]);
+  const counts = { all: all.length, visiter: 0, manger: 0, dormir: 0 } as Record<Usage | "all", number>;
+  all.forEach((p) => counts[p.usage]++);
+  const places = usage === "all" ? all : all.filter((p) => p.usage === usage);
   const groups: { v: number; places: Place[] }[] = [];
   places.forEach((p) => {
     const last = groups[groups.length - 1];
@@ -43,7 +47,11 @@ export default function Trip() {
     else groups.push({ v: p.ville, places: [p] });
   });
   const toBook = places.filter((p) => must(p.resa));
-  const planned = (id: string) => daysOf(id).map((d) => `jour ${days.indexOf(d) + 1} (${dayLabel(d, { weekday: "short", day: "numeric", month: "short" })})`).filter((s) => !s.startsWith("jour 0"));
+  const short = (d: string) => dayLabel(d, { weekday: "short", day: "numeric", month: "short" });
+  const planned = (id: string) => [
+    ...daysOf(id).filter((d) => days.includes(d)).map((d) => `jour ${days.indexOf(d) + 1} (${short(d)})`),
+    ...nightsOf(id).filter((d) => nights.includes(d)).map((d) => `nuit du ${short(d)}`),
+  ];
 
   return (
     <div className="page">
@@ -64,6 +72,16 @@ export default function Trip() {
           )}
         </div>
       </div>
+
+      {all.length > 0 && (
+        <div className="chips usage-chips" role="group" aria-label="Type de lieu">
+          {(["all", "visiter", "manger", "dormir"] as const).map((u) => (
+            <button key={u} className="chip" aria-pressed={usage === u} onClick={() => setUsage(u)}>
+              {u === "all" ? "Tous" : <><span lang="ja">{USAGE_KANJI[u]}</span> {USAGE_LABEL[u]}</>} <span className="dot-num">{counts[u]}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {toBook.length > 0 && (
         <section className="tobook" aria-labelledby="tobook-h">
@@ -111,6 +129,24 @@ export default function Trip() {
                       <div><dt><span lang="ja">料金</span> Entrée</dt><dd>{p.prix}</dd></div>
                       {must(p.resa) && <div className="must"><dt><span lang="ja">予約</span> Réservation</dt><dd>{p.resa}</dd></div>}
                     </dl>
+                  )}
+                  {voyage ? (
+                    <label className="assign">
+                      <span className="sr-only">Placer {p.nom} dans le voyage</span>
+                      {p.usage === "dormir" ? (
+                        <select value="" onChange={(ev) => ev.target.value && addToDay(ev.target.value, p.id, "nuit")}>
+                          <option value="">泊 Dormir ici la nuit du…</option>
+                          {nights.map((d, k) => !nightsOf(p.id).includes(d) && <option key={d} value={d}>Nuit {k + 1} : {short(d)} → {short(days[k + 1])}</option>)}
+                        </select>
+                      ) : (
+                        <select value="" onChange={(ev) => ev.target.value && addToDay(ev.target.value, p.id)}>
+                          <option value="">旅 Placer dans le voyage : jour…</option>
+                          {days.map((d, k) => !daysOf(p.id).includes(d) && <option key={d} value={d}>Jour {k + 1} : {short(d)}</option>)}
+                        </select>
+                      )}
+                    </label>
+                  ) : (
+                    <Link className="small" to="/voyage">Définir les dates du voyage pour placer ce lieu</Link>
                   )}
                   <NoteBox placeId={p.id} />
                   <div className="stop-actions">

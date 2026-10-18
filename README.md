@@ -11,9 +11,11 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
 - **Catalogue** : tous les lieux regroupés par ville, d'est en ouest ; filtres par type, par ville, recherche,
   et « masquer les lieux déjà ajoutés ». Bouton « Ajouter à mes lieux » sur chaque fiche.
 - **Mes lieux** : les lieux choisis, ville par ville, avec le détail de chaque fiche, des notes perso et les réservations à anticiper.
+- **Usages** : chaque lieu est « à visiter », « pour manger » ou « pour dormir » (filtres dans le catalogue et Mes lieux).
 - **Fiches perso** : « + Créer une fiche » dans le catalogue (position via un lien Google Maps ou des coordonnées).
 - **Voyage** : dates de départ et de retour, puis les lieux de « Mes lieux » placés jour par jour, dans l'ordre de visite.
   Les lieux se déplacent d'un jour à l'autre par glisser-déposer (poignée ⠿) ou avec le menu « J… ».
+  Entre deux jours, une section « Nuit » indique où dormir. Depuis Mes lieux, un menu place directement un lieu sur un jour ou une nuit.
   Ce planning forme le trajet tracé sur la carte d'accueil.
 
 ## Technique

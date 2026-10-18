@@ -1,12 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "../lib/supabase";
-import { PLACES, VILLES, norm, type Category, type Place, type Zone } from "../data/catalogue";
+import { PLACES, VILLES, norm, type Category, type Place, type Usage, type Zone } from "../data/catalogue";
 import { useAuth } from "./auth";
 
 /* Catalogue = fiches du carnet + fiches créées à la main par le compte (table custom_places). */
 
 export interface CustomInput {
-  nom: string; cat: Category; ville: number; lieu: string; lat: number; lon: number;
+  nom: string; cat: Category; usage: Usage; ville: number; lieu: string; lat: number; lon: number;
   description: string; duree: string; prix: string; resa: string; lien: string;
 }
 interface Row extends CustomInput { id: string }
@@ -19,7 +19,7 @@ export const VILLE_CENTRE: [number, number][] = VILLES.map((_, i) => {
 });
 
 const toPlace = (r: Row): Place => ({
-  id: r.id, nom: r.nom, cat: r.cat, zone: VILLE_ZONE[r.ville] ?? "kansai", lieu: r.lieu || VILLES[r.ville]?.nom || "",
+  id: r.id, nom: r.nom, cat: r.cat, usage: r.usage || "visiter", zone: VILLE_ZONE[r.ville] ?? "kansai", lieu: r.lieu || VILLES[r.ville]?.nom || "",
   lat: r.lat, lon: r.lon, desc: r.description || "", note: null, ville: r.ville,
   duree: r.duree || "Non précisée", prix: r.prix || "Non précisé", resa: r.resa || "Non précisé",
   q: r.nom, photos: [], videos: [], avis: [], ta: null, taNom: null, custom: true, lien: r.lien || null,
@@ -45,7 +45,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!userId) { setRows([]); return; }
     let off = false;
-    supabase.from("custom_places").select("id, nom, cat, ville, lieu, lat, lon, description, duree, prix, resa, lien").order("created_at")
+    supabase.from("custom_places").select("id, nom, cat, usage, ville, lieu, lat, lon, description, duree, prix, resa, lien").order("created_at")
       .then(({ data }) => { if (!off) setRows((data as Row[]) ?? []); });
     return () => { off = true; };
   }, [userId]);

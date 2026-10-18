@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { VILLES, norm, villeKanji, type Category } from "../data/catalogue";
 import { useCatalog } from "../state/catalog";
+import { useFav } from "../state/fav";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import PlaceCard from "../components/PlaceCard";
@@ -25,12 +26,14 @@ export default function Catalogue() {
   const [active, setActive] = useState(0);
   const rail = useRef<HTMLOListElement>(null);
   const onlyNew = params.get("nouveaux") === "1";
+  const onlyFav = params.get("favoris") === "1";
+  const { favs } = useFav();
   const focus = params.get("lieu");
 
   const list = useMemo(() => {
     const nq = norm(q.trim());
-    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)));
-  }, [cat, q, onlyNew, session, has, PLACES, HAY]);
+    return PLACES.filter((p) => (cat === "all" || (cat === "perso" ? p.custom : p.cat === cat)) && (!nq || HAY[p.id].includes(nq)) && (!onlyNew || !session || !has(p.id)) && (!onlyFav || !session || favs.has(p.id)));
+  }, [cat, q, onlyNew, onlyFav, favs, session, has, PLACES, HAY]);
 
   const groups = useMemo(() => {
     const m = new Map<number, typeof list>();
@@ -66,6 +69,12 @@ export default function Catalogue() {
     }
   }, [focus]);
 
+  const setFlag = (k: string, v: boolean) => {
+    const p = new URLSearchParams(params);
+    if (v) p.set(k, "1"); else p.delete(k);
+    p.delete("lieu");
+    setParams(p, { replace: true });
+  };
   const setOnlyNew = (v: boolean) => {
     const p = new URLSearchParams(params);
     if (v) p.set("nouveaux", "1"); else p.delete("nouveaux");
@@ -93,6 +102,12 @@ export default function Catalogue() {
             Masquer les lieux déjà ajoutés
           </label>
         )}
+        {session && (
+          <label className="switch fav-switch">
+            <input type="checkbox" checked={onlyFav} onChange={(e) => setFlag("favoris", e.target.checked)} />
+            <span className="fav-ico" aria-hidden="true">★</span> Seulement mes favoris ({favs.size})
+          </label>
+        )}
       </div>
 
       <nav className="line" aria-label="Aller à une ville">
@@ -111,7 +126,7 @@ export default function Catalogue() {
       </nav>
 
       <p className="muted small count-line" aria-live="polite">{list.length} lieu{list.length > 1 ? "x" : ""} affiché{list.length > 1 ? "s" : ""}</p>
-      {groups.length === 0 && <p className="empty">Aucun lieu ne correspond. Effacez la recherche ou choisissez « Tous ».</p>}
+      {groups.length === 0 && <p className="empty">{onlyFav && favs.size === 0 ? "Aucun favori pour l'instant : touchez l'étoile ☆ à côté du nom d'un lieu pour le mettre de côté." : "Aucun lieu ne correspond. Effacez la recherche ou choisissez « Tous »."}</p>}
       {groups.map(([v, places]) => (
         <section key={v} className="city" data-v={v} id={"ville-" + v} aria-labelledby={"vh-" + v}>
           <div className="city-head">

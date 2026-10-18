@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { CAT_LABEL, ZONE_COLOR, type Category, type Place } from "../data/catalogue";
 import Photos from "./Photos";
 import AddButton from "./AddButton";
+import FavButton from "./FavButton";
 
 const yt = (q: string) => "https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " Japan");
 const ta = (q: string) => "https://www.tripadvisor.com/Search?q=" + encodeURIComponent(q);
@@ -17,8 +18,8 @@ export default function PlaceCard({ p, embedded = false }: { p: Place; embedded?
       <Photos place={p} />
       <div className="card-main">
         <div className="card-head">
-          <div>
-            <h3>{p.nom}</h3>
+          <div className="card-title">
+            <h3>{!embedded && <FavButton id={p.id} nom={p.nom} />}{p.nom}</h3>
             <p className="meta">{p.lieu}</p>
           </div>
           <span className={"seal " + (p.custom ? "perso" : p.cat)} title={p.custom ? "Fiche perso" : CAT_LABEL[p.cat]}>

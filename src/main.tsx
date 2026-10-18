@@ -6,6 +6,7 @@ import { AuthProvider } from "./state/auth";
 import { TripProvider } from "./state/trip";
 import { PlanProvider } from "./state/plan";
 import { CatalogProvider } from "./state/catalog";
+import { FavProvider } from "./state/fav";
 import Voyage from "./pages/Voyage";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -21,6 +22,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
       <CatalogProvider>
+      <FavProvider>
       <TripProvider>
         <PlanProvider>
         <HashRouter>
@@ -41,6 +43,7 @@ createRoot(document.getElementById("root")!).render(
         </HashRouter>
         </PlanProvider>
       </TripProvider>
+      </FavProvider>
       </CatalogProvider>
     </AuthProvider>
   </StrictMode>,

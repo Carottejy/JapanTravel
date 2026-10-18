@@ -22,7 +22,7 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
 - Carte : contour détouré du Japon (Natural Earth 1:10 m via `world-atlas`), pré-projeté en SVG par
   `node scripts/build-japan-map.mjs` → `src/data/japan-map.json` ; repères en français.
 - Données du carnet : `src/data/catalogue.json` ; photos en planches `public/sprites/<id>.jpg` (6 photos Wikimedia Commons par lieu).
-- Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), tables `trip_items` (mes lieux), `voyages` (dates) `voyage_etapes` (lieux par jour) et `custom_places` (fiches créées à la main),
+- Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), tables `trip_items` (mes lieux), `voyages` (dates) `voyage_etapes` (lieux par jour) `custom_places` (fiches créées à la main) et `favoris`,
   protégées par RLS ; les notes perso sont dans `trip_items.note`
   (voir `supabase/migrations/`). La clé publique dans `src/config.ts` est faite pour le navigateur ;
   elle peut être remplacée par les variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_KEY`.

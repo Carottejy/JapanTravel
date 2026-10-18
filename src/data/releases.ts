@@ -11,6 +11,15 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "1.9.0",
+    date: "2026-10-18",
+    titre: "Favoris",
+    notes: [
+      "Catalogue : touchez l'étoile ☆ à côté du nom d'un lieu pour le mettre en favori, sans l'ajouter à Mes lieux.",
+      "Nouveau filtre « Seulement mes favoris » pour n'afficher qu'eux ; il se combine avec la recherche et les types.",
+    ],
+  },
+  {
     version: "1.8.0",
     date: "2026-10-18",
     titre: "Notes perso, fiches maison et glisser-déposer",

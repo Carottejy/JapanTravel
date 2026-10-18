@@ -540,3 +540,10 @@ body.dragging-on { user-select: none; -webkit-user-select: none; cursor: grabbin
   .day-stop { grid-template-columns: auto auto 52px minmax(0, 1fr); }
   .day-stop-act { grid-column: 3 / -1; }
 }
+
+/* ── Favoris ── */
+.card-title h3 { display: flex; align-items: flex-start; gap: 6px; }
+.fav { flex: none; width: 34px; height: 34px; margin: -5px 0 -5px -6px; border: 0; background: none; cursor: pointer; font-size: 22px; line-height: 1; color: var(--muted); border-radius: 50%; }
+.fav:hover { color: var(--kin); background: var(--soft); }
+.fav.on { color: var(--kin); }
+.fav-ico { color: var(--kin); }

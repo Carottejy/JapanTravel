@@ -79,6 +79,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     if (error) return "La fiche n'a pas pu être supprimée.";
     await supabase.from("trip_items").delete().eq("place_id", id);
     await supabase.from("voyage_etapes").delete().eq("place_id", id);
+    await supabase.from("favoris").delete().eq("place_id", id);
     setRows((cur) => cur.filter((r) => r.id !== id));
     return null;
   }, []);

@@ -7,6 +7,7 @@ import NoteBox from "../components/NoteBox";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import { dayLabel, usePlan } from "../state/plan";
+import VoyageSwitch from "../components/VoyageSwitch";
 import PlaceCard, { must } from "../components/PlaceCard";
 
 // Villes repliées : mémorisées dans ce navigateur (simple confort, sans conséquence si indisponible).
@@ -18,7 +19,7 @@ const saveFolded = (v: number[]) => { try { localStorage.setItem(KEY, JSON.strin
 export default function Trip() {
   const { session, loading: authLoading } = useAuth();
   const { items, remove, loading } = useTrip();
-  const { voyage, days, nights, daysOf, nightsOf, addToDay, removePlaceEverywhere } = usePlan();
+  const { voyage, voyages, days, nights, daysOf, nightsOf, otherVoyagesOf, addToDay, removePlaceEverywhere } = usePlan();
   const [usage, setUsage] = useState<Usage | "all">("all");
   const { byId, rank: RANK } = useCatalog();
   const [folded, setFolded] = useState<number[]>(loadFolded);
@@ -63,7 +64,7 @@ export default function Trip() {
             : "Aucun lieu pour l'instant : choisissez-les dans le catalogue."}
         </p>
         <div className="row">
-          {places.length > 0 && <Link to="/voyage" className="btn">Organiser le voyage</Link>}
+          {places.length > 0 && <Link to="/voyage" className="btn">Organiser {voyages.length > 1 ? "mes voyages" : "le voyage"}</Link>}
           <Link to="/catalogue?nouveaux=1" className={places.length ? "btn ghost" : "btn"}>Ajouter des lieux</Link>
           {groups.length > 1 && (
             folded.length >= groups.length
@@ -72,6 +73,10 @@ export default function Trip() {
           )}
         </div>
       </div>
+
+      {all.length > 0 && voyages.length > 1 && (
+        <div className="vswitch-row"><span className="muted small">Placer dans :</span><VoyageSwitch variant="select" /></div>
+      )}
 
       {all.length > 0 && (
         <div className="chips usage-chips" role="group" aria-label="Type de lieu">
@@ -107,6 +112,8 @@ export default function Trip() {
           {!folded.includes(v) && <ul className="stops" id={"stops-" + v}>
             {places.map((p) => {
               const plan = planned(p.id);
+              const ailleurs = otherVoyagesOf(p.id);
+              const vn = voyages.length > 1 && voyage ? ` (${voyage.nom})` : "";
               return (
                 <li key={p.id} className="stop" style={{ ["--zone" as string]: ZONE_COLOR[p.zone] }}>
                   {/* Panneau de gare façon JR : nom du lieu, bande de couleur de la ligne */}
@@ -120,13 +127,13 @@ export default function Trip() {
                       </div>
                     </div>
                     <div className={"eki-band plan" + (plan.length ? "" : " none")}>
-                      <span>{plan.length ? `Prévu : ${plan.join(", ")}` : "Pas encore placé dans le voyage"}</span>
+                      <span>{plan.length ? `Prévu${vn} : ${plan.join(", ")}` : `Pas encore placé dans le voyage${vn}`}{ailleurs.length ? ` · aussi dans : ${ailleurs.join(", ")}` : ""}</span>
                     </div>
                   </div>
                   {open.includes(p.id) ? <PlaceCard p={p} embedded /> : (
                     <dl className="stub compact">
-                      <div><dt><span lang="ja">時間</span> Visite</dt><dd>{p.duree}</dd></div>
-                      <div><dt><span lang="ja">料金</span> Entrée</dt><dd>{p.prix}</dd></div>
+                      <div><dt><span lang="ja">時間</span> {p.usage === "dormir" ? "Séjour" : p.usage === "manger" ? "Durée" : "Visite"}</dt><dd>{p.duree}</dd></div>
+                      <div><dt><span lang="ja">料金</span> {p.usage === "visiter" ? "Entrée" : "Prix"}</dt><dd>{p.prix}</dd></div>
                       {must(p.resa) && <div className="must"><dt><span lang="ja">予約</span> Réservation</dt><dd>{p.resa}</dd></div>}
                     </dl>
                   )}
@@ -135,18 +142,18 @@ export default function Trip() {
                       <span className="sr-only">Placer {p.nom} dans le voyage</span>
                       {p.usage === "dormir" ? (
                         <select value="" onChange={(ev) => ev.target.value && addToDay(ev.target.value, p.id, "nuit")}>
-                          <option value="">泊 Dormir ici la nuit du…</option>
+                          <option value="">泊 Dormir ici{voyages.length > 1 ? ` (« ${voyage.nom} »)` : ""} la nuit du…</option>
                           {nights.map((d, k) => !nightsOf(p.id).includes(d) && <option key={d} value={d}>Nuit {k + 1} : {short(d)} → {short(days[k + 1])}</option>)}
                         </select>
                       ) : (
                         <select value="" onChange={(ev) => ev.target.value && addToDay(ev.target.value, p.id)}>
-                          <option value="">旅 Placer dans le voyage : jour…</option>
+                          <option value="">旅 Placer dans {voyages.length > 1 ? `« ${voyage.nom} »` : "le voyage"} : jour…</option>
                           {days.map((d, k) => !daysOf(p.id).includes(d) && <option key={d} value={d}>Jour {k + 1} : {short(d)}</option>)}
                         </select>
                       )}
                     </label>
                   ) : (
-                    <Link className="small" to="/voyage">Définir les dates du voyage pour placer ce lieu</Link>
+                    <Link className="small" to="/voyage">Créer un voyage pour placer ce lieu</Link>
                   )}
                   <NoteBox placeId={p.id} />
                   <div className="stop-actions">

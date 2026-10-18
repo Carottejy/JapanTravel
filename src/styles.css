@@ -579,3 +579,26 @@ body.dragging-on { user-select: none; -webkit-user-select: none; cursor: grabbin
 .night-pick select { background: rgba(255,255,255,.08); color: var(--ai-ink); border-color: rgba(244,241,232,.35); }
 .night-pick select option { color: #1d2233; }
 .night-pick a { color: var(--ai-ink); }
+
+/* ── Plusieurs voyages : onglets, menu compact ── */
+.vtabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; }
+.vtab {
+  flex: none; display: grid; gap: 1px; text-align: left; min-height: 44px; padding: 7px 12px; cursor: pointer; font: inherit; color: var(--ink);
+  background: var(--sheet); border: 1.5px solid var(--line); border-radius: 8px; border-top: 4px solid var(--line); line-height: 1.25;
+}
+.vtab strong { font-size: 15px; }
+.vtab .small { color: var(--muted); }
+.vtab.on { border-color: var(--ai); border-top-color: var(--shu); box-shadow: 0 2px 0 var(--ai); }
+.vtab.add { border-style: dashed; color: var(--ai); font-weight: 600; align-content: center; }
+.vselect { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; }
+.vselect [lang="ja"] { font-weight: 800; color: var(--shu); }
+.vselect select {
+  min-width: 0; max-width: 100%; min-height: 40px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--sheet); color: var(--ink);
+  font: inherit; font-size: 15px; padding: 6px 10px;
+}
+.vswitch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.map-vswitch { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 500; pointer-events: none; display: flex; }
+.map-vswitch .vselect { pointer-events: auto; background: var(--sheet); border-radius: 10px; padding: 4px 4px 4px 10px; box-shadow: 0 4px 14px rgba(10,14,26,.2); }
+.map-vswitch .vselect select { border: 0; background: transparent; }
+.dates .v-nom { flex: 1 1 100%; }
+.dates .form-t { flex: 1 1 100%; margin: 0; font-size: 18px; }

@@ -5,20 +5,25 @@ import { useCatalog } from "./catalog";
 import { useAuth } from "./auth";
 import { useTrip } from "./trip";
 
-/* Planning du voyage : dates de départ et de retour, lieux placés jour par jour, et hébergement de chaque nuit. */
+/* Planning : plusieurs voyages par compte, chacun avec son nom, ses dates, ses lieux placés jour par jour
+   et l'hébergement de chaque nuit. Les écrans travaillent sur le voyage « actif ». */
 
 export type Kind = "jour" | "nuit";
-export interface Etape { id: string; day: string; place_id: string; position: number; kind: Kind }
-export interface Voyage { start_date: string; end_date: string }
+export interface Etape { id: string; voyage_id: string; day: string; place_id: string; position: number; kind: Kind }
+export interface Voyage { id: string; nom: string; start_date: string; end_date: string }
 export interface StopInfo { p: Place; day: string; dayIndex: number; n: number; kind: Kind }
 
 interface PlanValue {
-  voyage: Voyage | null;
-  etapes: Etape[];
+  voyages: Voyage[];                    // tous les voyages du compte, par date de départ
+  voyage: Voyage | null;                // voyage actif
+  setActive: (id: string) => void;
+  createVoyage: (nom: string, start: string, end: string) => Promise<string | null>;
+  saveVoyage: (nom: string, start: string, end: string) => Promise<string | null>;
+  deleteVoyage: (id: string) => Promise<void>;
+  etapes: Etape[];                      // étapes du voyage actif
   loading: boolean;
-  days: string[];                       // toutes les dates du voyage (AAAA-MM-JJ)
+  days: string[];                       // toutes les dates du voyage actif (AAAA-MM-JJ)
   route: StopInfo[];                    // trajet : chaque jour ses visites dans l'ordre, puis l'hébergement du soir
-  saveDates: (start: string, end: string) => Promise<string | null>;
   addToDay: (day: string, placeId: string, kind?: Kind) => Promise<void>;
   removeEtape: (id: string) => Promise<void>;
   moveEtape: (id: string, dir: -1 | 1) => Promise<void>;
@@ -27,10 +32,13 @@ interface PlanValue {
   removePlaceEverywhere: (placeId: string) => Promise<void>;
   daysOf: (placeId: string) => string[];
   nightsOf: (placeId: string) => string[];
-  nights: string[];                     // soirs du voyage (tous les jours sauf le dernier)
+  /** Noms des autres voyages où ce lieu est placé */
+  otherVoyagesOf: (placeId: string) => string[];
+  nights: string[];                     // soirs du voyage actif (tous les jours sauf le dernier)
 }
 
 const PlanContext = createContext<PlanValue | null>(null);
+const ACTIVE_KEY = "jt-voyage-actif";
 
 export const addDays = (iso: string, n: number) => {
   const d = new Date(iso + "T12:00:00Z");
@@ -40,30 +48,56 @@ export const addDays = (iso: string, n: number) => {
 export const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions = { weekday: "long", day: "numeric", month: "long" }) =>
   new Date(iso + "T12:00:00Z").toLocaleDateString("fr-FR", { ...opts, timeZone: "UTC" });
 
+const readActive = () => { try { return localStorage.getItem(ACTIVE_KEY); } catch { return null; } };
+const writeActive = (id: string) => { try { localStorage.setItem(ACTIVE_KEY, id); } catch { /* stockage indisponible */ } };
+
+function checkDates(nom: string, start: string, end: string) {
+  if (!nom.trim()) return "Donnez un nom à ce voyage.";
+  if (!start || !end) return "Choisissez une date de départ et une date de retour.";
+  if (end < start) return "La date de retour doit être après la date de départ.";
+  if ((new Date(end).getTime() - new Date(start).getTime()) / 864e5 > 90) return "Un voyage ne peut pas dépasser 90 jours.";
+  return null;
+}
+
 export function PlanProvider({ children }: { children: ReactNode }) {
   const { session } = useAuth();
   const { has } = useTrip();
   const { byId } = useCatalog();
   const userId = session?.user.id;
-  const [voyage, setVoyage] = useState<Voyage | null>(null);
-  const [etapes, setEtapes] = useState<Etape[]>([]);
+  const [voyages, setVoyages] = useState<Voyage[]>([]);
+  const [all, setAll] = useState<Etape[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(readActive);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!userId) { setVoyage(null); setEtapes([]); return; }
+    if (!userId) { setVoyages([]); setAll([]); return; }
     let off = false;
     setLoading(true);
     Promise.all([
-      supabase.from("voyages").select("start_date, end_date").maybeSingle(),
-      supabase.from("voyage_etapes").select("id, day, place_id, position, kind").order("day").order("position"),
+      supabase.from("voyages").select("id, nom, start_date, end_date").order("start_date"),
+      supabase.from("voyage_etapes").select("id, voyage_id, day, place_id, position, kind").order("day").order("position"),
     ]).then(([v, e]) => {
       if (off) return;
-      setVoyage((v.data as Voyage) ?? null);
-      setEtapes(((e.data as Etape[]) ?? []).map((x) => ({ ...x, kind: x.kind ?? "jour" })));
+      setVoyages(((v.data as Voyage[]) ?? []).sort((a, b) => a.start_date.localeCompare(b.start_date)));
+      setAll(((e.data as Etape[]) ?? []).map((x) => ({ ...x, kind: x.kind ?? "jour" })));
       setLoading(false);
     });
     return () => { off = true; };
   }, [userId]);
+
+  // Voyage actif : le dernier choisi sur cet appareil, sinon le prochain à venir, sinon le premier.
+  const voyage = useMemo(() => {
+    if (!voyages.length) return null;
+    const chosen = voyages.find((v) => v.id === activeId);
+    if (chosen) return chosen;
+    const today = new Date().toISOString().slice(0, 10);
+    return voyages.find((v) => v.end_date >= today) ?? voyages[voyages.length - 1];
+  }, [voyages, activeId]);
+  const vid = voyage?.id ?? null;
+
+  const setActive = useCallback((id: string) => { setActiveId(id); writeActive(id); }, []);
+
+  const etapes = useMemo(() => (vid ? all.filter((e) => e.voyage_id === vid) : []), [all, vid]);
 
   const days = useMemo(() => {
     if (!voyage) return [];
@@ -87,44 +121,67 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     return out;
   }, [days, etapes, has, byId]);
 
-  const saveDates = useCallback(async (start: string, end: string) => {
-    if (!start || !end) return "Choisissez une date de départ et une date de retour.";
-    if (end < start) return "La date de retour doit être après la date de départ.";
-    if ((new Date(end).getTime() - new Date(start).getTime()) / 864e5 > 90) return "Le voyage ne peut pas dépasser 90 jours.";
+  const sortV = (list: Voyage[]) => [...list].sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+  const createVoyage = useCallback(async (nom: string, start: string, end: string) => {
+    const bad = checkDates(nom, start, end);
+    if (bad) return bad;
+    const { data, error } = await supabase.from("voyages").insert({ nom: nom.trim(), start_date: start, end_date: end })
+      .select("id, nom, start_date, end_date").single();
+    if (error || !data) return "Le voyage n'a pas pu être créé.";
+    setVoyages((cur) => sortV([...cur, data as Voyage]));
+    setActive((data as Voyage).id);
+    return null;
+  }, [setActive]);
+
+  const saveVoyage = useCallback(async (nom: string, start: string, end: string) => {
+    if (!voyage) return "Aucun voyage sélectionné.";
+    const bad = checkDates(nom, start, end);
+    if (bad) return bad;
     const outside = etapes.filter((e) => e.day < start || e.day > end || (e.kind === "nuit" && e.day >= end));
     if (outside.length && !window.confirm(`${outside.length} lieu(x) placé(s) sur des jours hors de ces dates seront retirés du planning. Continuer ?`))
       return "Dates inchangées.";
-    const { error } = await supabase.from("voyages").upsert({ user_id: userId, start_date: start, end_date: end, updated_at: new Date().toISOString() });
-    if (error) return "Les dates n'ont pas pu être enregistrées.";
+    const { error } = await supabase.from("voyages").update({ nom: nom.trim(), start_date: start, end_date: end, updated_at: new Date().toISOString() }).eq("id", voyage.id);
+    if (error) return "Le voyage n'a pas pu être enregistré.";
     if (outside.length) {
       await supabase.from("voyage_etapes").delete().in("id", outside.map((e) => e.id));
-      setEtapes((cur) => cur.filter((e) => !outside.includes(e)));
+      setAll((cur) => cur.filter((e) => !outside.includes(e)));
     }
-    setVoyage({ start_date: start, end_date: end });
+    setVoyages((cur) => sortV(cur.map((v) => (v.id === voyage.id ? { ...v, nom: nom.trim(), start_date: start, end_date: end } : v))));
     return null;
-  }, [etapes, userId]);
+  }, [voyage, etapes]);
+
+  const deleteVoyage = useCallback(async (id: string) => {
+    const { error } = await supabase.from("voyages").delete().eq("id", id);
+    if (error) return;
+    setVoyages((cur) => cur.filter((v) => v.id !== id));
+    setAll((cur) => cur.filter((e) => e.voyage_id !== id));
+  }, []);
 
   const addToDay = useCallback(async (day: string, placeId: string, kind: Kind = "jour") => {
+    if (!vid) return;
     if (etapes.some((e) => e.day === day && e.kind === kind && e.place_id === placeId)) return;
     const position = etapes.filter((e) => e.day === day && e.kind === kind).reduce((m, e) => Math.max(m, e.position), 0) + 1;
-    const tmp: Etape = { id: "tmp-" + kind + day + placeId, day, place_id: placeId, position, kind };
-    setEtapes((cur) => [...cur, tmp]);
-    const { data, error } = await supabase.from("voyage_etapes").insert({ day, place_id: placeId, position, kind }).select("id, day, place_id, position, kind").single();
-    setEtapes((cur) => (error || !data ? cur.filter((e) => e.id !== tmp.id) : cur.map((e) => (e.id === tmp.id ? ({ ...(data as Etape), kind }) : e))));
-  }, [etapes]);
+    const tmp: Etape = { id: "tmp-" + kind + day + placeId, voyage_id: vid, day, place_id: placeId, position, kind };
+    setAll((cur) => [...cur, tmp]);
+    const { data, error } = await supabase.from("voyage_etapes").insert({ voyage_id: vid, day, place_id: placeId, position, kind })
+      .select("id, voyage_id, day, place_id, position, kind").single();
+    setAll((cur) => (error || !data ? cur.filter((e) => e.id !== tmp.id) : cur.map((e) => (e.id === tmp.id ? ({ ...(data as Etape), voyage_id: vid, kind }) : e))));
+  }, [etapes, vid]);
 
   const removeEtape = useCallback(async (id: string) => {
-    const prev = etapes;
-    setEtapes((cur) => cur.filter((e) => e.id !== id));
+    const prev = all;
+    setAll((cur) => cur.filter((e) => e.id !== id));
     const { error } = await supabase.from("voyage_etapes").delete().eq("id", id);
-    if (error) setEtapes(prev);
-  }, [etapes]);
+    if (error) setAll(prev);
+  }, [all]);
 
+  // Retirer un lieu de « Mes lieux » le retire de tous les voyages.
   const removePlaceEverywhere = useCallback(async (placeId: string) => {
-    if (!etapes.some((e) => e.place_id === placeId)) return;
-    setEtapes((cur) => cur.filter((e) => e.place_id !== placeId));
+    if (!all.some((e) => e.place_id === placeId)) return;
+    setAll((cur) => cur.filter((e) => e.place_id !== placeId));
     await supabase.from("voyage_etapes").delete().eq("place_id", placeId);
-  }, [etapes]);
+  }, [all]);
 
   const moveEtape = useCallback(async (id: string, dir: -1 | 1) => {
     const me = etapes.find((e) => e.id === id);
@@ -133,17 +190,17 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     const k = same.findIndex((e) => e.id === id), other = same[k + dir];
     if (!other) return;
     const pa = me.position === other.position ? other.position + dir : other.position, pb = me.position;
-    const prev = etapes;
-    setEtapes((cur) => cur.map((e) => (e.id === me.id ? { ...e, position: pa } : e.id === other.id ? { ...e, position: pb } : e)));
+    const prev = all;
+    setAll((cur) => cur.map((e) => (e.id === me.id ? { ...e, position: pa } : e.id === other.id ? { ...e, position: pb } : e)));
     const r1 = await supabase.from("voyage_etapes").update({ position: pa }).eq("id", me.id);
     const r2 = await supabase.from("voyage_etapes").update({ position: pb }).eq("id", other.id);
-    if (r1.error || r2.error) setEtapes(prev);
-  }, [etapes]);
+    if (r1.error || r2.error) setAll(prev);
+  }, [etapes, all]);
 
   const moveToDay = useCallback(async (id: string, day: string, index: number) => {
     const me = etapes.find((e) => e.id === id);
     if (!me) return;
-    const prev = etapes;
+    const prev = all;
     // Le même lieu est déjà prévu ce jour-là : on retire simplement le doublon.
     const dup = me.day !== day && etapes.find((e) => e.day === day && e.kind === me.kind && e.place_id === me.place_id);
     if (dup) { await removeEtape(id); return; }
@@ -152,18 +209,23 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     const renum = new Map(target.map((e, k) => [e.id, k + 1]));
     const source = me.day !== day ? etapes.filter((e) => e.day === me.day && e.kind === me.kind && e.id !== id).sort((a, b) => a.position - b.position) : [];
     source.forEach((e, k) => renum.set(e.id, k + 1));
-    const next = etapes.map((e) => (e.id === id ? { ...e, day, position: renum.get(id)! } : renum.has(e.id) ? { ...e, position: renum.get(e.id)! } : e));
-    setEtapes(next);
+    const next = all.map((e) => (e.id === id ? { ...e, day, position: renum.get(id)! } : renum.has(e.id) ? { ...e, position: renum.get(e.id)! } : e));
+    setAll(next);
     const changed = next.filter((e) => { const o = prev.find((x) => x.id === e.id)!; return o.day !== e.day || o.position !== e.position; });
     const res = await Promise.all(changed.map((e) => supabase.from("voyage_etapes").update({ day: e.day, position: e.position }).eq("id", e.id)));
-    if (res.some((r) => r.error)) setEtapes(prev);
-  }, [etapes, removeEtape]);
+    if (res.some((r) => r.error)) setAll(prev);
+  }, [etapes, all, removeEtape]);
 
   const daysOf = useCallback((placeId: string) => etapes.filter((e) => e.place_id === placeId && e.kind === "jour").map((e) => e.day).sort(), [etapes]);
   const nightsOf = useCallback((placeId: string) => etapes.filter((e) => e.place_id === placeId && e.kind === "nuit").map((e) => e.day).sort(), [etapes]);
+  const otherVoyagesOf = useCallback((placeId: string) => {
+    const ids = new Set(all.filter((e) => e.place_id === placeId && e.voyage_id !== vid).map((e) => e.voyage_id));
+    return voyages.filter((v) => ids.has(v.id)).map((v) => v.nom);
+  }, [all, vid, voyages]);
 
   return (
-    <PlanContext.Provider value={{ voyage, etapes, loading, days, route, saveDates, addToDay, removeEtape, moveEtape, moveToDay, removePlaceEverywhere, daysOf, nightsOf, nights }}>
+    <PlanContext.Provider value={{ voyages, voyage, setActive, createVoyage, saveVoyage, deleteVoyage, etapes, loading, days, route,
+      addToDay, removeEtape, moveEtape, moveToDay, removePlaceEverywhere, daysOf, nightsOf, otherVoyagesOf, nights }}>
       {children}
     </PlanContext.Provider>
   );

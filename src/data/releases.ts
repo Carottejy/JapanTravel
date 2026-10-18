@@ -11,6 +11,17 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.3.0",
+    date: "2026-10-18",
+    titre: "Plusieurs voyages",
+    notes: [
+      "Voyage : préparez plusieurs voyages, chacun avec son nom, ses dates et ses lieux pris dans Mes lieux. Onglets pour passer de l'un à l'autre, « + Nouveau voyage », et suppression d'un voyage depuis « Modifier le voyage ».",
+      "Mes lieux : un menu « Placer dans » choisit le voyage où ranger les lieux ; la bande de chaque lieu indique aussi les autres voyages où il est prévu.",
+      "Carte : un menu en haut choisit le voyage dont le trajet est affiché.",
+      "Votre voyage existant est conservé sous le nom « Mon voyage » (renommable).",
+    ],
+  },
+  {
     version: "2.2.1",
     date: "2026-10-18",
     titre: "Samouraïs et chats",

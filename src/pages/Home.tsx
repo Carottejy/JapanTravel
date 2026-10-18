@@ -7,6 +7,7 @@ import { useAuth } from "../state/auth";
 import { dayLabel, usePlan } from "../state/plan";
 import AddButton from "../components/AddButton";
 import JapanMap from "../components/JapanMap";
+import VoyageSwitch from "../components/VoyageSwitch";
 
 export default function Home() {
   const { session, loading } = useAuth();
@@ -44,6 +45,7 @@ export default function Home() {
           </div>
         )}
 
+        {session && <div className="map-vswitch"><VoyageSwitch variant="select" /></div>}
         <Link to="/info" className="version dot-num" aria-label={`Version ${APP_VERSION}, voir les nouveautés`}>v{APP_VERSION}</Link>
 
         {!loading && !session && (

@@ -6,19 +6,22 @@ import Thumb from "../components/Thumb";
 import { useAuth } from "../state/auth";
 import { useTrip } from "../state/trip";
 import { dayLabel, usePlan } from "../state/plan";
+import VoyageSwitch from "../components/VoyageSwitch";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Voyage : dates de départ et de retour, puis les lieux de « Mes lieux » placés jour par jour. */
+/** Voyages : chacun a son nom et ses dates ; les lieux de « Mes lieux » y sont placés jour par jour. */
 export default function Voyage() {
   const { session, loading: authLoading } = useAuth();
   const { items, noteOf } = useTrip();
   const { byId, rank: RANK } = useCatalog();
-  const { voyage, etapes, days, route, saveDates, addToDay, removeEtape, moveEtape, moveToDay, daysOf, nightsOf, nights, loading } = usePlan();
+  const { voyages, voyage, etapes, days, route, createVoyage, saveVoyage, deleteVoyage, addToDay, removeEtape, moveEtape, moveToDay, daysOf, nightsOf, nights, loading } = usePlan();
+  const [nom, setNom] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
-  const [editDates, setEditDates] = useState(false);
+  // Formulaire : modifier le voyage actif, ou en créer un nouveau
+  const [mode, setMode] = useState<"vue" | "modif" | "nouveau">("vue");
 
   // ── Glisser-déposer d'un lieu d'un jour à l'autre (souris et doigt) ──
   type Drag = { id: string; label: string; x: number; y: number; day: string | null; index: number };
@@ -74,9 +77,11 @@ export default function Voyage() {
     };
   }, [dragId]);
 
-  useEffect(() => {
-    if (voyage) { setStart(voyage.start_date); setEnd(voyage.end_date); }
-  }, [voyage]);
+  const fill = (v: typeof voyage) => { setNom(v?.nom ?? "Mon voyage"); setStart(v?.start_date ?? ""); setEnd(v?.end_date ?? ""); };
+  useEffect(() => { if (mode !== "nouveau") fill(voyage); }, [voyage, mode]);
+  const voyageId = voyage?.id;
+  useEffect(() => { setMode("vue"); setMsg(null); }, [voyageId]);
+  const startNew = () => { setMode("nouveau"); setMsg(null); setNom(voyages.length ? `Voyage ${voyages.length + 1}` : "Mon voyage"); setStart(""); setEnd(""); };
 
   if (!authLoading && !session)
     return (
@@ -93,52 +98,63 @@ export default function Voyage() {
   const others = mine.filter((p) => p.usage !== "dormir");
   const byVille = mine.reduce<Record<number, Place[]>>((m, p) => ((m[p.ville] ??= []).push(p), m), {});
 
+  const creating = mode === "nouveau" || !voyage;
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const err = await saveDates(start, end);
-    setMsg(err ? { ok: false, t: err } : { ok: true, t: "Dates enregistrées." });
-    if (!err) setEditDates(false);
+    const err = creating ? await createVoyage(nom || "Mon voyage", start, end) : await saveVoyage(nom, start, end);
+    setMsg(err ? { ok: false, t: err } : { ok: true, t: creating ? "Voyage créé." : "Voyage enregistré." });
+    if (!err) setMode("vue");
+  };
+  const remove = async () => {
+    if (!voyage || !window.confirm(`Supprimer le voyage « ${voyage.nom} » et son planning ? Les lieux restent dans « Mes lieux ».`)) return;
+    await deleteVoyage(voyage.id);
+    setMode("vue");
+    setMsg({ ok: true, t: "Voyage supprimé." });
   };
   const nbDays = days.length;
-  const showForm = !voyage || editDates;
+  const showForm = !voyage || mode !== "vue";
 
   return (
     <div className="page">
       <div className="page-head">
         <h1>Voyage <span lang="ja" className="jp-sub">旅程</span></h1>
-        {voyage && !editDates ? (
+        {voyages.length > 0 && <VoyageSwitch onNew={startNew} />}
+        {voyage && !showForm ? (
           <div className="dates-sum">
             <p>
-              <strong>{nbDays} jour{nbDays > 1 ? "s" : ""}</strong>, du {dayLabel(voyage.start_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+              <strong>{voyage.nom}</strong> · {nbDays} jour{nbDays > 1 ? "s" : ""}, du {dayLabel(voyage.start_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
               {" "}au {dayLabel(voyage.end_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}.
             </p>
             <div className="row">
-              <button className="btn ghost sm" onClick={() => { setEditDates(true); setMsg(null); }}>Modifier les dates</button>
+              <button className="btn ghost sm" onClick={() => { setMode("modif"); setMsg(null); }}>Modifier le voyage</button>
               {route.length > 0 && <Link to="/" className="btn sm">Voir le trajet sur la carte</Link>}
             </div>
           </div>
-        ) : (
-          <p className="muted">Indiquez vos dates, puis placez chaque jour les lieux de votre liste « Mes lieux » : ils formeront le trajet de la carte.</p>
-        )}
+        ) : !voyage ? (
+          <p className="muted">Créez un voyage avec son nom et ses dates, puis placez chaque jour les lieux de votre liste « Mes lieux » : ils formeront le trajet de la carte. Vous pouvez préparer plusieurs voyages.</p>
+        ) : null}
       </div>
 
       {showForm && (
         <form className="dates" onSubmit={submit}>
+          {creating && voyages.length > 0 && <h2 className="form-t">Nouveau voyage</h2>}
+          <label className="v-nom">Nom du voyage<input type="text" required maxLength={80} value={nom} placeholder="Mon voyage" onChange={(e) => setNom(e.target.value)} /></label>
           <label>Départ<input type="date" required value={start} onChange={(e) => setStart(e.target.value)} /></label>
           <label>Retour<input type="date" required value={end} min={start || undefined} onChange={(e) => setEnd(e.target.value)} /></label>
           <div className="row">
-            <button className="btn">Enregistrer les dates</button>
-            {voyage && <button type="button" className="btn ghost" onClick={() => { setEditDates(false); setStart(voyage.start_date); setEnd(voyage.end_date); }}>Annuler</button>}
+            <button className="btn">{creating ? "Créer le voyage" : "Enregistrer"}</button>
+            {voyage && <button type="button" className="btn ghost" onClick={() => { setMode("vue"); fill(voyage); setMsg(null); }}>Annuler</button>}
+            {voyage && mode === "modif" && <button type="button" className="btn ghost danger" onClick={remove}>Supprimer ce voyage</button>}
           </div>
         </form>
       )}
       {msg && <p className={msg.ok ? "ok" : "err"} role="status">{msg.t}</p>}
 
-      {voyage && mine.length === 0 && !loading && (
+      {voyage && !showForm && mine.length === 0 && !loading && (
         <p className="empty">Votre liste « Mes lieux » est vide. <Link to="/catalogue">Choisissez des lieux dans le catalogue</Link>, puis revenez les placer ici.</p>
       )}
 
-      {voyage && mine.length > 0 && (
+      {voyage && !showForm && mine.length > 0 && (
         <>
           {unplanned.length > 0 && (
             <section className="unplanned" aria-labelledby="unp-h">

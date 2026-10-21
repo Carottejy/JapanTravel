@@ -11,6 +11,12 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.4.2",
+    date: "2026-10-21",
+    titre: "Le sanctuaire des lapins",
+    notes: ["Nouvelle fiche à Kyoto : Okazaki-jinja, le sanctuaire des lapins, près du Heian-jingū. Le catalogue compte 289 lieux."],
+  },
+  {
     version: "2.4.1",
     date: "2026-10-18",
     titre: "Zone le long du trajet",

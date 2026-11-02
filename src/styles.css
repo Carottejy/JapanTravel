@@ -653,3 +653,17 @@ body.dragging-on { user-select: none; -webkit-user-select: none; cursor: grabbin
 .pm-act { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 4px; }
 .pm-act a { font-size: 13px; font-weight: 600; }
 .plan .leaflet-popup-content { margin: 12px 14px; }
+.plan-side { position: absolute; left: 10px; bottom: 26px; z-index: 500; display: grid; gap: 8px; justify-items: start; }
+.plan-cat { background: var(--sheet); padding: 6px 10px; border-radius: 8px; box-shadow: 0 4px 14px rgba(10,14,26,.25); font-size: 14px; }
+.plan-fond select { min-height: 36px; border: 0; border-radius: 8px; background: var(--sheet); color: var(--ink); font: inherit; font-size: 14px; padding: 6px 10px; box-shadow: 0 4px 14px rgba(10,14,26,.25); }
+.plan-msg.top { top: 60px; bottom: auto; }
+.pm-cat .pm { width: 22px; height: 22px; border-width: 1.5px; opacity: .55; box-shadow: 0 2px 4px rgba(10,14,26,.3); }
+.pm-cat .pm b { font-size: 11px; }
+.pm-cat:hover .pm, .pm-cat:focus .pm { opacity: 1; }
+.pm-label { display: none; background: rgba(251,250,246,.92); border: 0; box-shadow: 0 1px 4px rgba(10,14,26,.3); color: #1b1f2a; font-weight: 600; font-size: 12px; padding: 1px 6px; border-radius: 4px; }
+.pm-label::before { display: none; }
+.show-labels .pm-label { display: block; }
+.pm-btn { justify-self: start; margin-top: 6px; font: inherit; font-size: 13px; font-weight: 600; border-radius: 6px; padding: 6px 10px; cursor: pointer; border: 1.5px solid #2f4f9a; }
+.pm-btn.in { background: #2f4f9a; color: #fff; }
+.pm-btn.out { background: #fff; color: #b23a48; border-color: #b23a48; }
+@media (max-width: 760px) { .plan-cat { font-size: 13px; } }

@@ -11,6 +11,15 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.5.1",
+    date: "2026-11-02",
+    titre: "Plan en français et catalogue sur la carte",
+    notes: [
+      "Plan : fond de carte avec les noms en français quand ils existent (sinon nom local), au choix « Lettres latines » ou « Noms japonais » ; les noms de vos lieux s'affichent à côté des repères dès qu'on zoome.",
+      "Plan : « Afficher le catalogue » ajoute en repères pâles tous les lieux qui ne sont pas encore dans Mes lieux ; depuis la bulle d'un repère, ajoutez-le à Mes lieux ou retirez-le.",
+    ],
+  },
+  {
     version: "2.5.0",
     date: "2026-11-02",
     titre: "Plan de mes lieux",

@@ -13,7 +13,8 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
 - **Mes lieux** : les lieux choisis, ville par ville, avec le détail de chaque fiche, des notes perso et les réservations à anticiper.
 - **Usages** : chaque lieu est « à visiter », « pour manger » ou « pour dormir » (filtres dans le catalogue et Mes lieux).
 - **Fiches perso** : « + Créer une fiche » dans le catalogue (position via un lien Google Maps ou des coordonnées).
-- **Voyage** : dates de départ et de retour, puis les lieux de « Mes lieux » placés jour par jour, dans l'ordre de visite.
+- **Plan** : carte zoomable (Leaflet, fond OpenStreetMap) avec un repère par lieu de « Mes lieux », liens Google Maps et itinéraire.
+- **Voyage** : plusieurs voyages, chacun avec son nom, ses dates, sa zone (villes + périmètre en km) et les lieux de « Mes lieux » placés jour par jour.
   Les lieux se déplacent d'un jour à l'autre par glisser-déposer (poignée ⠿) ou avec le menu « J… ».
   Entre deux jours, une section « Nuit » indique où dormir. Depuis Mes lieux, un menu place directement un lieu sur un jour ou une nuit.
   Ce planning forme le trajet tracé sur la carte d'accueil.
@@ -24,7 +25,7 @@ durée de visite conseillée, prix d'entrée (yens et euros), délai de réserva
 - Carte : contour détouré du Japon (Natural Earth 1:10 m via `world-atlas`), pré-projeté en SVG par
   `node scripts/build-japan-map.mjs` → `src/data/japan-map.json` ; repères en français.
 - Données du carnet : `src/data/catalogue.json` ; photos en planches `public/sprites/<id>.jpg` (6 photos Wikimedia Commons par lieu).
-- Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), tables `trip_items` (mes lieux), `voyages` (dates) `voyage_etapes` (lieux par jour) `custom_places` (fiches créées à la main) et `favoris`,
+- Base : projet Supabase **JapanTravel** (`bjpinzjpxdiaxagtldqq`), tables `trip_items` (mes lieux), `voyages` (nom, dates, zone) `voyage_etapes` (lieux par jour) `custom_places` (fiches créées à la main) et `favoris`,
   protégées par RLS ; les notes perso sont dans `trip_items.note`
   (voir `supabase/migrations/`). La clé publique dans `src/config.ts` est faite pour le navigateur ;
   elle peut être remplacée par les variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_KEY`.

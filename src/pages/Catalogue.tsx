@@ -18,13 +18,22 @@ const CATS: { v: "all" | "perso" | Category; l: string }[] = [
   { v: "perso", l: "Mes fiches" },
 ];
 
+/* Mémoire du catalogue pour la session : filtres, recherche et position de lecture,
+   rétablis quand on revient sur l'onglet après être allé ailleurs. */
+const MEM_KEY = "jt-catalogue";
+interface Mem { search: string; q: string; cat: "all" | "perso" | Category; anchor: string | null; offset: number }
+const readMem = (): Mem | null => { try { return JSON.parse(sessionStorage.getItem(MEM_KEY) || "null"); } catch { return null; } };
+const writeMem = (m: Partial<Mem>) => { try { sessionStorage.setItem(MEM_KEY, JSON.stringify({ ...readMem(), ...m })); } catch { /* stockage indisponible */ } };
+
 export default function Catalogue() {
   const { session } = useAuth();
   const { has } = useTrip();
   const [params, setParams] = useSearchParams();
-  const [cat, setCat] = useState<"all" | "perso" | Category>("all");
+  // Retour sur l'onglet sans paramètres dans l'adresse : on reprend là où on en était.
+  const [mem] = useState(() => (params.toString() === "" ? readMem() : null));
+  const [cat, setCat] = useState<"all" | "perso" | Category>(mem?.cat ?? "all");
   const { places: PLACES, hay: HAY } = useCatalog();
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(mem?.q ?? "");
   const [active, setActive] = useState(0);
   const rail = useRef<HTMLOListElement>(null);
   const onlyNew = params.get("nouveaux") === "1";
@@ -71,6 +80,43 @@ export default function Catalogue() {
       setTimeout(() => el.classList.remove("flash"), 1800);
     }
   }, [focus]);
+
+  // Rétablit les filtres de l'adresse, puis la position de lecture (le lieu qui était en haut de l'écran).
+  const restored = useRef(false);
+  useEffect(() => {
+    if (mem?.search) setParams(new URLSearchParams(mem.search), { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (restored.current || (mem?.search && params.toString() !== mem.search)) return;
+    restored.current = true;
+    if (focus) return;
+    if (!mem?.anchor) { window.scrollTo(0, 0); return; }
+    const go = () => {
+      const el = document.getElementById("lieu-" + mem.anchor);
+      if (el) window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - mem.offset);
+    };
+    requestAnimationFrame(() => { go(); requestAnimationFrame(go); setTimeout(go, 150); });
+  }, [params, mem, focus]);
+  // Enregistre filtres et recherche…
+  useEffect(() => {
+    const p = new URLSearchParams(params); p.delete("lieu");
+    writeMem({ search: p.toString(), q, cat });
+  }, [params, q, cat]);
+  // … et le lieu en haut de l'écran pendant le défilement.
+  useEffect(() => {
+    let raf = 0;
+    const save = () => {
+      raf = 0;
+      if (!restored.current) return;
+      const top = (document.querySelector(".top")?.getBoundingClientRect().bottom ?? 0) + 8;
+      const card = [...document.querySelectorAll<HTMLElement>(".card[id^='lieu-']")].find((c) => c.getBoundingClientRect().bottom > top);
+      writeMem(card && window.scrollY > 200 ? { anchor: card.id.slice(5), offset: card.getBoundingClientRect().top } : { anchor: null, offset: 0 });
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(save); };
+    window.addEventListener("scroll", on, { passive: true });
+    return () => { window.removeEventListener("scroll", on); cancelAnimationFrame(raf); };
+  }, []);
 
   const setFlag = (k: string, v: boolean) => {
     const p = new URLSearchParams(params);

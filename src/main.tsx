@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./styles.css";
@@ -17,6 +17,8 @@ import Account from "./pages/Account";
 import Info from "./pages/Info";
 import PlaceForm from "./pages/PlaceForm";
 import "./components/InstallBox";
+// La carte zoomable (Leaflet) n'est chargée qu'à l'ouverture de l'onglet Plan.
+const Plan = lazy(() => import("./pages/Plan"));
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -32,6 +34,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="catalogue" element={<Catalogue />} />
               <Route path="lieux" element={<Trip />} />
               <Route path="voyage" element={<Voyage />} />
+              <Route path="plan" element={<Suspense fallback={<div className="page"><p className="muted">Chargement de la carte…</p></div>}><Plan /></Suspense>} />
               <Route path="connexion" element={<Login />} />
               <Route path="compte" element={<Account />} />
               <Route path="info" element={<Info />} />

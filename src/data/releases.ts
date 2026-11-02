@@ -11,6 +11,16 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.5.0",
+    date: "2026-11-02",
+    titre: "Plan de mes lieux",
+    notes: [
+      "Nouvel onglet Plan (地図帳) : une vraie carte où l'on zoome et se déplace, avec un repère pour chacun de vos lieux (観 visiter, 食 manger, 宿 dormir). Touchez un repère pour ouvrir la fiche, Google Maps ou l'itinéraire.",
+      "Plan : filtre par usage, bouton « Tout voir » et « Ma position » ; la carte reprend là où vous l'aviez laissée.",
+      "Catalogue : les filtres, la recherche et la position de lecture sont gardés quand vous passez sur un autre onglet puis revenez.",
+    ],
+  },
+  {
     version: "2.4.2",
     date: "2026-10-21",
     titre: "Le sanctuaire des lapins",

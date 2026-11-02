@@ -28,3 +28,7 @@ export const IconPin = () => (
 export const IconTrain = () => (
   <svg {...s}><path d="M4 16.5c0-6 4-10.5 10-10.5h1.5c2.5 0 4.5 2 4.5 4.5v6a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 16.5z" /><path d="M8.5 11h11.5M4.5 20.5h16" /><circle cx="16.5" cy="14.5" r=".6" fill="currentColor" /></svg>
 );
+/** Plan : une boussole */
+export const IconCompass = () => (
+  <svg {...s}><circle cx="12" cy="12" r="8.5" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /><path d="M12 3.5v1.5M12 19v1.5M3.5 12H5M19 12h1.5" /></svg>
+);

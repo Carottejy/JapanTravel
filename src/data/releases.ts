@@ -11,6 +11,12 @@ export interface Release {
  *  (et mettre à jour "version" dans package.json). */
 export const RELEASES: Release[] = [
   {
+    version: "2.5.2",
+    date: "2026-11-02",
+    titre: "Plan plus lisible",
+    notes: ["Plan : les noms des lieux ne s'affichent plus en permanence à côté des repères, seulement dans la bulle quand on touche un repère."],
+  },
+  {
     version: "2.5.1",
     date: "2026-11-02",
     titre: "Plan en français et catalogue sur la carte",

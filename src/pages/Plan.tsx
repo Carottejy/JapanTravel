@@ -71,9 +71,6 @@ export default function Plan() {
     if (!ready || !box.current || map.current) return;
     const m = L.map(box.current, { zoomControl: true, zoomAnimation: true, fadeAnimation: false, markerZoomAnimation: true, attributionControl: true });
     m.attributionControl.setPrefix(false);
-    // Les noms des lieux s'affichent à côté des repères à partir d'un certain zoom.
-    const lbl = () => m.getContainer().classList.toggle("show-labels", m.getZoom() >= 11);
-    m.on("zoomend", lbl); lbl();
     layer.current = L.layerGroup().addTo(m);
     me.current = L.layerGroup().addTo(m);
     const v = read<View>(VIEW_KEY);
@@ -100,7 +97,7 @@ export default function Plan() {
   }, [fond, ready]);
   useEffect(() => write(CAT_KEY, showCat), [showCat]);
 
-  // Repères : Mes lieux (vifs, avec leur nom) puis, au choix, le reste du catalogue (pâles)
+  // Repères : Mes lieux (vifs ; le nom s'affiche dans la bulle, au toucher) puis, au choix, le reste du catalogue (pâles)
   const fitted = useRef(!!read<View>(VIEW_KEY));
   useEffect(() => {
     const m = map.current, g = layer.current;
@@ -140,7 +137,6 @@ export default function Plan() {
       });
       const mk = L.marker([p.lat, p.lon], { icon, title: p.nom, alt: p.nom, keyboard: true, zIndexOffset: inTrip ? 1000 : 0 })
         .bindPopup(() => popup(p, inTrip), { maxWidth: 280, autoPanPadding: [16, 70] });
-      if (inTrip) mk.bindTooltip(esc(p.nom), { permanent: true, direction: "right", offset: [12, -22], className: "pm-label" });
       mk.addTo(g);
     };
     others.forEach((p) => mark(p, false));
